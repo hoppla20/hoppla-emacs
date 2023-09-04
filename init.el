@@ -1,9 +1,3 @@
-* Basic Configuration
-
-** package archives
-
-#+begin_src elisp :tangle yes
-
 (require 'package)
 (setq package-archives
 '(
@@ -15,27 +9,11 @@
  ))
 (package-initialize)
 
-#+end_src
-
-** use-package
-
-#+begin_src elisp :tangle yes
-
 (setq use-package-always-ensure t)
 (unless (package-installed-p 'use-package)
   (package-refresh-contents)
   (package-install 'use-package))
 (eval-when-compile (require 'use-package))
-
-#+end_src
-
-* Plugins
-
-** Essentials
-
-*** evil
-
-#+begin_src elisp :tangle yes
 
 (use-package goto-chg)
 (use-package undo-tree
@@ -55,29 +33,12 @@
 	     :config
 	     (evil-collection-init))
 
-#+end_src
-
-*** org
-
-#+begin_src elisp :tangle yes
-
 (use-package org
 	     :mode (("\\.org$" . org-mode))
 	     :config)
-
-#+end_src
-
-** Misc
-
-*** org-reveal (presentations)
-
-#+begin_src elisp :tangle yes
 
 (use-package htmlize)
 (use-package ox-reveal
 	     :after htmlize
 	     :config
 	     (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
-
-#+end_src
-
