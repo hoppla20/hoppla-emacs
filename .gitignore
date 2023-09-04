@@ -1,4 +1,5 @@
 # user configuration
+/init.el
 /default.el
 
 # emacs state
