@@ -2,7 +2,7 @@
 
 ** package archives
 
-#+begin_src emacs-lisp :tangle 'yes'
+#+begin_src emacs-lisp :tangle yes
 
 (require 'package)
 (setq package-archives
@@ -19,7 +19,7 @@
 
 ** use-package
 
-#+begin_src emacs-lisp :tangle 'yes'
+#+begin_src emacs-lisp :tangle yes
 
 (setq use-package-always-ensure t)
 (unless (package-installed-p 'use-package)
@@ -35,7 +35,7 @@
 
 *** evil
 
-#+begin_src emacs-lisp :tangle 'yes'
+#+begin_src emacs-lisp :tangle yes
 
 (use-package goto-chg)
 (use-package undo-tree
@@ -59,7 +59,7 @@
 
 *** org
 
-#+begin_src emacs-lisp :tangle 'yes'
+#+begin_src emacs-lisp :tangle yes
 
 (use-package org
 	     :mode (("\\.org$" . org-mode))
@@ -71,7 +71,7 @@
 
 *** org-reveal (presentations)
 
-#+begin_src emacs-lisp :tangle 'yes'
+#+begin_src emacs-lisp :tangle yes
 
 (use-package htmlize)
 (use-package ox-reveal
