@@ -67,6 +67,14 @@
 
 #+end_src
 
+*** magit
+
+#+begin_src elisp :tangle yes
+
+(use-package magit)
+
+#+end_src
+
 ** Misc
 
 *** org-reveal (presentations)
