@@ -1,1 +1,7 @@
+# user configuration
 /default.el
+
+# emacs state
+/auto-save-list
+/eln-cache
+/elpa

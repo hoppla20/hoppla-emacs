@@ -37,6 +37,8 @@
 	     :mode (("\\.org$" . org-mode))
 	     :config)
 
+(use-package magit)
+
 (use-package htmlize)
 (use-package ox-reveal
 	     :after htmlize
