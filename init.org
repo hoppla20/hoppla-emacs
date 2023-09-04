@@ -38,13 +38,10 @@
 #+begin_src elisp :tangle yes
 
 (use-package goto-chg)
-(use-package undo-tree
-	     :config
-	     (global-undo-tree-mode))
 (use-package evil
-	     :after (goto-chg undo-tree)
+	     :after goto-chg
 	     :init
-	     (setq evil-undo-system 'undo-tree)
+	     (setq evil-undo-system 'undo-red
 	     (setq evil-want-integration t)
 	     (setq evil-want-keybinding nil)
 	     (setq evil-overriding-maps nil)
