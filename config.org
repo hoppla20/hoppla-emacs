@@ -2,7 +2,7 @@
 
 ** disable customize
 
-Copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b8095199977053dd4210f/core/core-ui.el#L631C1-L639C103]]
+Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b8095199977053dd4210f/core/core-ui.el#L631C1-L639C103]]
 
 #+begin_src elisp :tangle yes
 
@@ -23,15 +23,14 @@ Copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b80
 #+begin_src elisp :tangle yes
 
 (require 'package)
-(setq package-archives
-'(
-   ("melpa" . "https://melpa.org/packages/")
-   ("melpaStable" . "https://stable.melpa.org/packages/")
-   ("nongnu" . "https://elpa.nongnu.org/nongnu/")
-   ("elpa" . "https://elpa.gnu.org/packages/")
-   ("elpaDevel" . "https://elpa.gnu.org/devel/")
- ))
+(setq package-archives '(("melpa"       . "https://melpa.org/packages/")
+   			 ("melpaStable" . "https://stable.melpa.org/packages/")
+   			 ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
+   			 ("elpa"        . "https://elpa.gnu.org/packages/")
+   			 ("elpaDevel"   . "https://elpa.gnu.org/devel/")))
 (package-initialize)
+(unless package-archive-contents
+  (package-refresh-contents))
 
 #+end_src
 
@@ -41,7 +40,6 @@ Copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b80
 
 (setq use-package-always-ensure t)
 (unless (package-installed-p 'use-package)
-  (package-refresh-contents)
   (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 
@@ -59,7 +57,7 @@ Copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b80
 (use-package evil
 	     :after goto-chg
 	     :init
-	     (setq evil-undo-system 'undo-red
+	     (setq evil-undo-system 'undo-red)
 	     (setq evil-want-integration t)
 	     (setq evil-want-keybinding nil)
 	     (setq evil-overriding-maps nil)
@@ -87,6 +85,29 @@ Copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b80
 #+begin_src elisp :tangle yes
 
 (use-package magit)
+
+#+end_src
+
+** Completion
+
+*** ivy, counsel, swiper
+
+#+begin_src elisp :tangle yes
+
+(use-package ivy
+   :diminish
+   :config
+   (ivy-mode))
+(use-package counsel
+    :after ivy
+    :config
+    (counsel-mode))
+(use-package swiper
+    :after ivy)
+(use-package ivy-rich
+   :after ivy
+   :config
+   (ivy-rich-mode 1))
 
 #+end_src
 
