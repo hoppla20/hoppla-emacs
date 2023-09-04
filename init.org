@@ -1,5 +1,23 @@
 * Basic Configuration
 
+** disable customize
+
+Copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b8095199977053dd4210f/core/core-ui.el#L631C1-L639C103]]
+
+#+begin_src elisp :tangle yes
+
+(dolist (sym '(customize-option customize-browse customize-group customize-face
+               customize-rogue customize-saved customize-apropos
+               customize-changed customize-unsaved customize-variable
+               customize-set-value customize-customized customize-set-variable
+               customize-apropos-faces customize-save-variable
+               customize-apropos-groups customize-apropos-options
+               customize-changed-options customize-save-customized))
+  (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
+(put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
+
+#+end_src
+
 ** package archives
 
 #+begin_src elisp :tangle yes

@@ -1,8 +1,8 @@
 # user configuration
-/init.el
 /default.el
 
 # emacs state
 /auto-save-list
 /eln-cache
 /elpa
+/transient
