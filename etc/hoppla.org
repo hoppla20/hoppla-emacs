@@ -1,4 +1,6 @@
-#+STARTUP: show3levels
+# -*- mode: Org; org-confirm-elisp-link-function: nil; -*-
+
+#+STARTUP: show4levels
 
 * Intro
 
@@ -10,8 +12,11 @@ Inspired by [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch]
 
 Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b8095199977053dd4210f/core/core-ui.el#L631C1-L639C103][Doom Emacs]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
+  ;; still set a custom-file path so that the init.el will not be modified if custom is
+  ;; invoked
+  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
   (dolist (sym '(customize-option customize-browse customize-group customize-face
                                   customize-rogue customize-saved customize-apropos
                                   customize-changed customize-unsaved customize-variable
@@ -28,20 +33,21 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 - [[https://github.com/jwiegley/use-package][GitHub]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (require 'package)
-  (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
-                           ("melpaStable" . "https://stable.melpa.org/packages/")
-                           ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
-                           ("elpa"        . "https://elpa.gnu.org/packages/")
-                           ("elpaDevel"   . "https://elpa.gnu.org/devel/")))
+  (unless hoppla/nix-managed-plugins
+    (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
+                            ("melpaStable" . "https://stable.melpa.org/packages/")
+                            ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
+                            ("elpa"        . "https://elpa.gnu.org/packages/")
+                            ("elpaDevel"   . "https://elpa.gnu.org/devel/"))))
   (package-initialize)
-  (unless package-archive-contents
+  (unless (or hoppla/nix-managed-plugins package-archive-contents)
     (package-refresh-contents))
 
   (setq use-package-always-ensure t)
-  (unless (package-installed-p 'use-package)
+  (unless (or hoppla/nix-managed-plugins (package-installed-p 'use-package))
     (package-install 'use-package))
   (eval-when-compile (require 'use-package))
 
@@ -51,7 +57,7 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_speed_up_emacs_start/
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (setq gc-cons-threshold-original gc-cons-threshold)
   (setq gc-cons-threshold (* 100 1024 1024))
@@ -71,7 +77,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Keybindings
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   ;; Make ESC quit prompts
   (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
@@ -84,7 +90,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   - [[https://github.com/emacs-evil/evil][evil]]
   - [[https://github.com/emacs-evil/evil-collection][evil-collection]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package goto-chg)
   (use-package evil
@@ -111,7 +117,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 - [[https://github.com/justbur/emacs-which-key][GitHub]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package which-key
     :defer 0
@@ -129,28 +135,35 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 - [[https://github.com/noctuid/general.el][GitHub]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
+  (defun hoppla/other-buffer ()
+    (interactive)
+    (switch-to-buffer (other-buffer)))
   (use-package general
     :after evil
     :config
     (general-create-definer hoppla/leader-def
-      :keymaps '(normal insert emacs)
-      :prefix "SPC"
-      :global-prefix "M-SPC"
+      :states '(normal insert emacs)
+      :prefix hoppla/leader
+      :global-prefix hoppla/global-leader
       :prefix-map 'hoppla/leader-prefix-map)
-    (hoppla/leader-def "t" '(:ignore t :which-key "toggles"))
-    (hoppla/leader-def "b" '(:ignore t :which-key "buffers"))
-    (hoppla/leader-def "w" '(:ignore t :which-key "windows"))
-    (hoppla/leader-def "f" '(:ignore t :which-key "files"))
-    (hoppla/leader-def "g" '(:ignore t :which-key "git"))
-    (hoppla/leader-def "h" '(:ignore t :which-key "help")))
+    (hoppla/leader-def "t" '(:ignore t :wk "toggles"))
+    (hoppla/leader-def "b" '(:ignore t :wk "buffers"))
+    (hoppla/leader-def "w" '(:ignore t :wk "windows"))
+    (hoppla/leader-def "f" '(:ignore t :wk "files"))
+    (hoppla/leader-def "g" '(:ignore t :wk "git"))
+    (hoppla/leader-def "h" '(:ignore t :wk "help"))
+    (hoppla/leader-def "d" '(:ignore t :wk "desktops"))
+    (hoppla/leader-def "p" '(:ignore t :wk "projects"))
+
+    (hoppla/leader-def "bo" '(hoppla/other-buffer :wk "switch to other buffer")))
 
 #+end_src
 
 ** Recent Files
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (recentf-mode 1)
   (setq recentf-max-menu-items 25)
@@ -161,7 +174,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Helpful
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package helpful
     :commands (helpful-callable helpful-variable helpful-command helpful-key)
@@ -170,26 +183,26 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (setq counsel-describe-variable-function #'helpful-variable)
     :bind
     ([remap describe-function] . counsel-describe-function)
-    ([remap describe-command] . counsel-describe-command)
     ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-key] . counsel-describe-key)
+    ([remap describe-command] . helpful-command)
+    ([remap describe-key] . helpful-key)
     :general
-    (hoppla/leader-def "hf" '(describe-function :which-key "describe function"))
-    (hoppla/leader-def "hc" '(describe-function :which-key "describe command"))
-    (hoppla/leader-def "hv" '(describe-function :which-key "describe variable"))
-    (hoppla/leader-def "hk" '(describe-function :which-key "describe key")))
+    (hoppla/leader-def "hf" '(describe-function :wk "describe function"))
+    (hoppla/leader-def "hc" '(describe-command :wk "describe command"))
+    (hoppla/leader-def "hv" '(describe-variable :wk "describe variable"))
+    (hoppla/leader-def "hk" '(describe-key :wk "describe key")))
 
 #+end_src
 
 * UI
 ** Basics
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (tool-bar-mode -1)
   (set-fringe-mode 5)
 
-  (use-package all-the-icons)
+  (use-package nerd-icons)
 
 #+end_src
 
@@ -201,7 +214,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Line / Column Numbers
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (display-line-numbers-mode 1)
   (dolist (mode '(org-mode-hook
@@ -214,13 +227,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Modeline
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (line-number-mode 1)
   (column-number-mode 1)
 
   (use-package doom-modeline
-    :after all-the-icons
+    :after nerd-icons
     :config
     (setq doom-modeline-height 15)
     :init
@@ -228,18 +241,96 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
+** Tab Line
+
+#+begin_src elisp :tangle yes :results silent
+
+  (global-tab-line-mode 1)
+  (defun tab-line-tabs-buffer-groups ()
+    "Return the list of group names the current buffer belongs to.
+        Return a list of one element based on major mode."
+    (list
+     (cond
+      ((or (get-buffer-process (current-buffer))
+           ;; Check if the major mode derives from `comint-mode' or
+           ;; `compilation-mode'.
+           (tabbar-buffer-mode-derived-p
+            major-mode '(comint-mode compilation-mode)))
+       "Process"
+       )
+      ;; ((member (buffer-name)
+      ;;          '("*scratch*" "*Messages*" "*Help*"))
+      ;;  "Common"
+      ;;  )
+      ((string-equal "*" (substring (buffer-name) 0 1))
+       "Common"
+       )
+      ((member (buffer-name)
+               '("xyz" "day" "m3" "abi" "for" "nws" "eng" "f_g" "tim" "tmp"))
+       "Main"
+       )
+      ((eq major-mode 'dired-mode)
+       "Dired"
+       )
+      ((memq major-mode
+             '(help-mode apropos-mode Info-mode Man-mode))
+       "Common"
+       )
+      ((memq major-mode
+             '(rmail-mode
+               rmail-edit-mode vm-summary-mode vm-mode mail-mode
+               mh-letter-mode mh-show-mode mh-folder-mode
+               gnus-summary-mode message-mode gnus-group-mode
+               gnus-article-mode score-mode gnus-browse-killed-mode))
+       "Mail"
+       )
+      (t
+       ;; Return `mode-name' if not blank, `major-mode' otherwise.
+       (if (and (stringp mode-name)
+                ;; Take care of preserving the match-data because this
+                ;; function is called when updating the header line.
+                (save-match-data (string-match "[^ ]" mode-name)))
+           mode-name
+         (symbol-name major-mode))
+       ))))
+
+  (general-def
+    :states '(normal insert emacs)
+    "M-," 'tab-line-switch-to-prev-tab
+    "M-." 'tab-line-switch-to-next-tab)
+
+#+end_src
+
 ** Theme
 
 - [[https://github.com/catppuccin/emacs][GitHub]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package catppuccin-theme
     :init
     (setq catppuccin-flavor hoppla/catppuccin-flavor)
     :config
     (load-theme 'catppuccin :no-confirm)
-    (hoppla/leader-def "tt" '(counsel-load-theme :which-key "choose theme")))
+    (hoppla/leader-def "tt" '(counsel-load-theme :wk "choose theme")))
+
+#+end_src
+
+** Dashboard
+
+#+begin_src elisp :tangle yes :results silent
+
+  (use-package dashboard
+    :after (projectile nerd-icons)
+    :init
+    (setq dashboard-center-content t)
+    (setq dashboard-display-icons-p t)
+    (setq dashboard-icon-type 'nerd-icons) 
+    (setq dashboard-set-heading-icons t)
+    (setq dashboard-set-file-icons t)
+    (setq dashboard-projects-switch-function 'counsel-projectile-switch-project)
+    :config
+    (dashboard-setup-startup-hook))
 
 #+end_src
 
@@ -249,12 +340,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 - [[https://orgmode.org/org.html][Manual]]
 
-#+begin_src elisp :tangle yes
-
+#+begin_src elisp :tangle yes :results silent
+  
   (use-package org
     :mode ("\\.org$" . org-mode)
     :init
-    (setq org-startup-indented t))
+    (setq org-startup-indented t)
+    (setq org-confirm-babel-evaluate nil))
 
 #+end_src
 
@@ -262,10 +354,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** Center Buffer
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (defun hoppla/org-mode-visual-fill ()
-    (setq visual-fill-column-width 100)
+    (setq visual-fill-column-width 120)
     (setq visual-fill-column-center-text t)
     (visual-fill-column-mode 1))
   (use-package visual-fill-column
@@ -276,7 +368,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** Auto-tangle
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (defun efs/org-babel-tangle-config ()
     (when (string-equal (file-name-directory (buffer-file-name))
@@ -289,14 +381,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** Misc
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
-    (use-package org-sticky-header
-      :after org
-      :hook (org-mode . org-sticky-header-mode))
-    (use-package org-superstar
-      :after org
-      :hook (org-mode . org-superstar-mode))
+  (use-package org-sticky-header
+    :after org
+    :hook (org-mode . org-sticky-header-mode))
+  (use-package org-superstar
+    :after org
+    :hook (org-mode . org-superstar-mode))
 
 #+end_src
 
@@ -306,15 +398,19 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 - [[https://magit.vc/manual/magit/][Manual]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
-  (use-package magit)
+  (use-package magit
+    :config
+    (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+    :general
+    (hoppla/leader-def "gg" 'magit))
 
 #+end_src
 
 *** projectile
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package projectile
     :diminish projectile-mode
@@ -322,7 +418,21 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (setq projectile-completion-system 'ivy)
     (setq projectile-switch-project-action #'projectile-dired)
     (when (file-directory-p hoppla/workspace-dir)
-      (setq projectile-project-search-path `((,hoppla/workspace-dir . 2))))
+      (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
+    :general
+    (hoppla/leader-def 
+      "pp" '(projectile-switch-project :wk "switch project")
+      "po" '(projectile-switch-open-project :wk "switch open projects")
+      "pa" '(projectile-add-project :wk "add project")
+      "pd" '(projectile-discover-projects-in-search-path :wk "discover projects"))
+    (:states '(normal insert emacs)
+             :keymaps 'projectile-mode-map
+             :prefix hoppla/leader
+             :global-prefix hoppla/global-leader
+             :prefix-map 'hoppla/projectile-leader-prefix-map
+             "ff" '(projectile-find-file :wk "search for project file")
+             "fd" '(projectile-find-dir :wk "search for project directory")
+             "fr" '(projectile-recentf :wk "find recent project file"))
     :config
     (projectile-mode 1))
   (use-package counsel-projectile
@@ -341,9 +451,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   - [[https://github.com/Yevgnen/ivy-rich][ivy-rich]]
   - [[https://github.com/radian-software/prescient.el][ivy-prescient]]
 
-#+begin_src elisp :tangle yes
+- Tips:
+  - Use ~C-c C-o~ to open search results in a new buffer
+
+#+begin_src elisp :tangle yes :results silent
 
   (use-package ivy
+    :defer nil
     :diminish ivy-mode
     :general
     (:keymaps 'normal "/" 'swiper)
@@ -356,9 +470,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (ivy-mode 1))
   (use-package counsel
     :general
-    (hoppla/leader-def "bs" '(counsel-switch-buffer :which-key "switch buffer"))
-    (hoppla/leader-def "ff" '(counsel-find-file :which-key "find file"))
-    (hoppla/leader-def "fr" '(counsel-recentf :which-key "find recent file"))
+    (hoppla/leader-def "bi" '(counsel-ibuffer :wk "ibuffer"))
+    (hoppla/leader-def "bs" '(counsel-switch-buffer :wk "switch buffer"))
+    (hoppla/leader-def "ff" '(counsel-fzf :wk "find file"))
+    (hoppla/leader-def "fr" '(counsel-recentf :wk "find recent file"))
     :config
     (counsel-mode 1))
   (use-package ivy-rich
@@ -378,7 +493,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** company
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package company
     :after lsp-mode
@@ -399,7 +514,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** no-littering
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   ;; no-littering is required in init.el
   (no-littering-theme-backups)
@@ -410,7 +525,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 - [[https://github.com/yjwen/org-reveal/][org-reveal]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package htmlize)
   (use-package ox-reveal
@@ -424,7 +539,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** LSP
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (defun hoppla/lsp-mode-setup ())
 
@@ -440,7 +555,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** lsp-ui
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package lsp-ui
     :after lsp-mode
@@ -452,7 +567,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** lsp-ivy
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package lsp-ivy
     :after lsp-mode)
@@ -463,7 +578,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** Python
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package python-mode
     :hook (python-mode . lsp-deferred))
@@ -480,7 +595,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 - [[https://github.com/redguardtoo/evil-nerd-commenter][GitHub]]
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package evil-nerd-commenter
     :after evil
@@ -491,7 +606,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** Rainbow Delimiters
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
@@ -502,7 +617,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Performance
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
   (run-with-idle-timer
    5 nil

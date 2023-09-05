@@ -1,3 +1,5 @@
+# emacs 'custom' file
+/custom.el
 # user configuration
 /etc/user.el
 # tangled hoppla.org and defaults.org

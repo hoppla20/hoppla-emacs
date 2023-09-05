@@ -1,11 +1,40 @@
 * Default Configuration
 
-** Theme
+** Keybindings
 
-#+begin_src elisp :tangle yes
+#+begin_src elisp :tangle yes :results silent
 
-   (setq hoppla/catppuccin-flavor 'macchiato)
-   (setq hoppla/workspace-dir "~/Workspace")
+  (setq hoppla/leader "SPC"
+        hoppla/global-leader "M-SPC")
 
 #+end_src
 
+** Plugins
+
+- whether packages are installed and managed by nix
+
+#+begin_src elisp :tangle yes :results silent
+
+   (setq hoppla/nix-managed-plugins nil)
+
+#+end_src
+
+
+** Theme
+
+#+begin_src elisp :tangle yes :results silent
+
+   (setq hoppla/catppuccin-flavor 'macchiato)
+
+#+end_src
+
+** Workspace Directories
+
+- used by projectile to auto discover projects
+
+#+begin_src elisp :tangle yes :results silent
+
+  (setq hoppla/workspace-dir "~/Workspace")
+  (setq hoppla/extra-workspace-dirs '(("/etc/nixos" . 0)))
+
+#+end_src
