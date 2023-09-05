@@ -361,46 +361,59 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
       (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
     :config
     (projectile-mode 1)
-    (hoppla/leader-def 
+    (general-def :states '(normal insert emacs)
+      :keymaps 'projectile-mode-map
+      :prefix hoppla/leader
+      :global-prefix hoppla/global-leader
+      :prefix-map 'hoppla/projectile-leader-prefix-map
+      "ff" '(projectile-find-file :wk "search for project file")
+      "fd" '(projectile-find-dir :wk "search for project directory")
+      "fr" '(projectile-recentf :wk "find recent project file")
       "pp" '(projectile-switch-project :wk "switch project")
       "po" '(projectile-switch-open-project :wk "switch open projects")
       "pa" '(projectile-add-project :wk "add project")
-      "pd" '(projectile-discover-projects-in-search-path :wk "discover projects"))
-    (general-def :states '(normal insert emacs)
-             :keymaps 'projectile-mode-map
-             :prefix hoppla/leader
-             :global-prefix hoppla/global-leader
-             :prefix-map 'hoppla/projectile-leader-prefix-map
-             "ff" '(projectile-find-file :wk "search for project file")
-             "fd" '(projectile-find-dir :wk "search for project directory")
-             "fr" '(projectile-recentf :wk "find recent project file")))
+      "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")))
   (use-package counsel-projectile
     :after projectile
     :config
     (counsel-projectile-mode 1))
 
-#+end_src
+      #+end_src
 
 *** perspective
 
 #+begin_src elisp :tangle yes :results silent
 
   (use-package perspective
+    :defer nil
+    :hook (kill-emacs . persp-state-save)
     :after counsel
-    :general
-    (hoppla/leader-def "bI" '(persp-ibuffer :wk "ibuffer"))
-    (hoppla/leader-def "bS" '(persp-counsel-switch-buffer :wk "switch buffer (all perspectives)"))
-    (hoppla/leader-def "br" '(persp-remove-buffer :wk "remove buffer"))
-    (hoppla/leader-def "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective"))
-    (hoppla/leader-def "Pr" '(persp-rename :wk "rename perspective"))
-    (hoppla/leader-def "P]" '(persp-prev :wk "previous perspective"))
-    (hoppla/leader-def "P[" '(persp-next :wk "next perspective"))
-    (hoppla/leader-def "Pm" '(persp-merge :wk "merge perspective"))
-    (hoppla/leader-def "Pu" '(persp-unmerge :wk "unmerge perspective"))
-    (hoppla/leader-def "Ps" '(persp-state-save :wk "save all perspectives"))
-    (hoppla/leader-def "Pl" '(persp-state-save :wk "load perspectives"))
+    :init
+    (unless (file-exists-p hoppla/persp-states-dir)
+      (make-directory hoppla/persp-states-dir))
+    (setq persp-state-default-file (expand-file-name "default.el" hoppla/persp-states-dir))
+    (setq persp-suppress-no-prefix-key-warning t)
     :config
-    (persp-mode 1))
+    (persp-mode 1)
+    (general-def :states '(normal insert emacs)
+      :keymaps 'persp-mode-map
+      :prefix hoppla/leader
+      :global-prefix hoppla/global-leader
+      :prefix-map 'hoppla/persp-leader-prefix-map
+      (hoppla/leader-def "bi" '(persp-ibuffer :wk "ibuffer"))
+      (hoppla/leader-def "bI" '(ibuffer :wk "ibuffer"))
+      (hoppla/leader-def "bs" '(persp-counsel-switch-buffer :wk "switch buffer (all perspectives)"))
+      (hoppla/leader-def "bS" '(counsel-switch-buffer :wk "switch buffer (all perspectives)"))
+      (hoppla/leader-def "br" '(persp-remove-buffer :wk "remove buffer"))
+      (hoppla/leader-def "bA" '(persp-add-buffer :wk "add buffer to global perspective"))
+      (hoppla/leader-def "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective"))
+      (hoppla/leader-def "Pr" '(persp-rename :wk "rename perspective"))
+      (hoppla/leader-def "P]" '(persp-prev :wk "previous perspective"))
+      (hoppla/leader-def "P[" '(persp-next :wk "next perspective"))
+      (hoppla/leader-def "Pm" '(persp-merge :wk "merge perspective"))
+      (hoppla/leader-def "Pu" '(persp-unmerge :wk "unmerge perspective"))
+      (hoppla/leader-def "Ps" '(persp-state-save :wk "save all perspectives"))
+      (hoppla/leader-def "Pl" '(persp-state-save :wk "load perspectives"))))
 
 #+end_src
 

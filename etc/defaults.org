@@ -38,3 +38,11 @@
   (setq hoppla/extra-workspace-dirs '(("/etc/nixos" . 0)))
 
 #+end_src
+
+** Perspective States Directory
+
+#+begin_src elisp :tangle yes :results silent
+
+  (setq hoppla/persp-states-dir (no-littering-expand-var-file-name "persp-states"))
+
+#+end_src
