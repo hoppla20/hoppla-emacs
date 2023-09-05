@@ -1,0 +1,11 @@
+* Default Configuration
+
+** Theme
+
+#+begin_src elisp :tangle yes
+
+   (setq hoppla/catppuccin-flavor 'macchiato)
+   (setq hoppla/workspace-dir "~/Workspace")
+
+#+end_src
+
