@@ -322,7 +322,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (setq projectile-completion-system 'ivy)
     (setq projectile-switch-project-action #'projectile-dired)
     (when (file-directory-p hoppla/workspace-dir)
-      (setq projectile-project-search-path '(hoppla/workspace-dir)))
+      (setq projectile-project-search-path `((,hoppla/workspace-dir . 2))))
     :config
     (projectile-mode 1))
   (use-package counsel-projectile
@@ -357,7 +357,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (use-package counsel
     :general
     (hoppla/leader-def "bs" '(counsel-switch-buffer :which-key "switch buffer"))
-    (hoppla/leader-def "ff" '(counsel-switch-buffer :which-key "find file"))
+    (hoppla/leader-def "ff" '(counsel-find-file :which-key "find file"))
     (hoppla/leader-def "fr" '(counsel-recentf :which-key "find recent file"))
     :config
     (counsel-mode 1))
