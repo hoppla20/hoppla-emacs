@@ -85,16 +85,30 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
     :after goto-chg
     :init
     (setq evil-undo-system 'undo-redo
-	  evil-want-integration t
-	  evil-want-keybinding nil
-	  evil-overriding-maps nil
-	  evil-want-C-u-scroll t)
+          evil-want-integration t
+          evil-want-keybinding nil
+          evil-overriding-maps nil
+          evil-want-C-u-scroll t)
     :config
     (evil-mode 1))
   (use-package evil-collection
     :after evil
     :config
     (evil-collection-init))
+
+#+end_src
+
+*** which-key
+
+#+begin_src elisp :tangle yes
+
+  (use-package which-key
+    :init
+    (setq which-key-show-early-on-C-h t)
+    (setq which-key-idle-delay 1.5)
+    (setq which-key-idle-secondary-delay 0.05)
+    :config
+    (which-key-mode))
 
 #+end_src
 
@@ -112,8 +126,6 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
     :after org)
 
 #+end_src
-
-#+RESULTS:
 
 *** magit
 
