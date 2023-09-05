@@ -1,20 +1,33 @@
 * Basic Configuration
 
+** line numbers
+
+#+begin_src elisp :tangle yes
+
+  (display-line-numbers-mode 1)
+  (dolist (mode '(org-mode-hook
+                  term-mode-hook
+                  shell-mode-hook
+                  eshell-mode-hook))
+    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+#+end_src
+
 ** disable customize
 
 Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b8095199977053dd4210f/core/core-ui.el#L631C1-L639C103]]
 
 #+begin_src elisp :tangle yes
 
-(dolist (sym '(customize-option customize-browse customize-group customize-face
-               customize-rogue customize-saved customize-apropos
-               customize-changed customize-unsaved customize-variable
-               customize-set-value customize-customized customize-set-variable
-               customize-apropos-faces customize-save-variable
-               customize-apropos-groups customize-apropos-options
-               customize-changed-options customize-save-customized))
-  (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
-(put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
+  (dolist (sym '(customize-option customize-browse customize-group customize-face
+                                  customize-rogue customize-saved customize-apropos
+                                  customize-changed customize-unsaved customize-variable
+                                  customize-set-value customize-customized customize-set-variable
+                                  customize-apropos-faces customize-save-variable
+                                  customize-apropos-groups customize-apropos-options
+                                  customize-changed-options customize-save-customized))
+    (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
+  (put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
 
 #+end_src
 
@@ -22,15 +35,15 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes
 
-(require 'package)
-(setq package-archives '(("melpa"       . "https://melpa.org/packages/")
-   			 ("melpaStable" . "https://stable.melpa.org/packages/")
-   			 ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
-   			 ("elpa"        . "https://elpa.gnu.org/packages/")
-   			 ("elpaDevel"   . "https://elpa.gnu.org/devel/")))
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
+  (require 'package)
+  (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
+                           ("melpaStable" . "https://stable.melpa.org/packages/")
+                           ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
+                           ("elpa"        . "https://elpa.gnu.org/packages/")
+                           ("elpaDevel"   . "https://elpa.gnu.org/devel/")))
+  (package-initialize)
+  (unless package-archive-contents
+    (package-refresh-contents))
 
 #+end_src
 
@@ -38,10 +51,24 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes
 
-(setq use-package-always-ensure t)
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-(eval-when-compile (require 'use-package))
+  (setq use-package-always-ensure t)
+  (unless (package-installed-p 'use-package)
+    (package-install 'use-package))
+  (eval-when-compile (require 'use-package))
+
+#+end_src
+
+* UI
+
+** Theme
+
+#+begin_src elisp :tangle yes
+
+  (use-package catppuccin-theme
+    :init
+    (setq catppuccin-flavor hoppla/catppuccin-flavor)
+    :config
+    (load-theme 'catppuccin :no-confirm))
 
 #+end_src
 
@@ -53,20 +80,21 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes
 
-(use-package goto-chg)
-(use-package evil
-	     :after goto-chg
-	     :init
-	     (setq evil-undo-system 'undo-red)
-	     (setq evil-want-integration t)
-	     (setq evil-want-keybinding nil)
-	     (setq evil-overriding-maps nil)
-	     :config
-	     (evil-mode 1))
-(use-package evil-collection
-	     :after evil
-	     :config
-	     (evil-collection-init))
+  (use-package goto-chg)
+  (use-package evil
+    :after goto-chg
+    :init
+    (setq evil-undo-system 'undo-redo
+	  evil-want-integration t
+	  evil-want-keybinding nil
+	  evil-overriding-maps nil
+	  evil-want-C-u-scroll t)
+    :config
+    (evil-mode 1))
+  (use-package evil-collection
+    :after evil
+    :config
+    (evil-collection-init))
 
 #+end_src
 
@@ -74,17 +102,24 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes
 
-(use-package org
-	     :mode (("\\.org$" . org-mode))
-	     :config)
+  (defun hoppla/org-mode-setup ()
+    (org-indent-mode)
+    (org-sticky-header-mode))
+  (use-package org
+    :mode ("\\.org$" . org-mode)
+    :hook ((org-mode . hoppla/org-mode-setup)))
+  (use-package org-sticky-header
+    :after org)
 
 #+end_src
+
+#+RESULTS:
 
 *** magit
 
 #+begin_src elisp :tangle yes
 
-(use-package magit)
+  (use-package magit)
 
 #+end_src
 
@@ -94,20 +129,20 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes
 
-(use-package ivy
-   :diminish
-   :config
-   (ivy-mode))
-(use-package counsel
+  (use-package ivy
+    :diminish
+    :config
+    (ivy-mode))
+  (use-package counsel
     :after ivy
     :config
     (counsel-mode))
-(use-package swiper
+  (use-package swiper
     :after ivy)
-(use-package ivy-rich
-   :after ivy
-   :config
-   (ivy-rich-mode 1))
+  (use-package ivy-rich
+    :after ivy
+    :config
+    (ivy-rich-mode 1))
 
 #+end_src
 
@@ -117,11 +152,11 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes
 
-(use-package htmlize)
-(use-package ox-reveal
-	     :after htmlize
-	     :config
-	     (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
+  (use-package htmlize)
+  (use-package ox-reveal
+    :after htmlize
+    :config
+    (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
 
 #+end_src
 
