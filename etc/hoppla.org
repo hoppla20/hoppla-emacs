@@ -473,8 +473,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :after lsp-mode
     :hook (lsp-mode . company-mode)
     :general
-    (:keymaps 'company-active-map "<tab>" company-complete-selection)
-    (:keymaps 'lsp-mode-map "<tab>" company-indent-or-complete-common)
+    (:keymaps 'company-active-map "<tab>" 'company-complete-selection)
+    (:keymaps 'lsp-mode-map "<tab>" 'company-indent-or-complete-common)
     :init
     (setq company-minimum-prefix-length 1)
     (setq company-idle-delay 0.0))
@@ -568,6 +568,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp :tangle yes :results silent
 
   (use-package nix-mode
+    :hook (nix-mode . lsp-deferred)
     :mode ("\\.nix\\'" "\\.nix.in\\'"))
   (use-package nix-drv-mode
     :ensure nix-mode
