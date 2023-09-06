@@ -69,12 +69,12 @@
 
 * Intro
 
-- emacs part inspired by [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch]].
-  - theoretically compatible with non-nix emacs
-  - some packages might not be available in the normal elpa, melpa, ... archives
-- nix part uses [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] to offer
-  - a nix package that also includes all emacs packages used by this configuration
-  - uses emacs-overlay's =emacsWithPackagesFromUsePackage= to automatically
++ emacs part inspired by [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch]].
+  + theoretically compatible with non-nix emacs
+  + some packages might not be available in the normal elpa, melpa, ... archives
++ nix part uses [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] to offer
+  + a nix package that also includes all emacs packages used by this configuration
+  + uses emacs-overlay's =emacsWithPackagesFromUsePackage= to automatically
     generate the list of nix emacsPackages
 
 ** Quick Start
@@ -92,6 +92,8 @@ cd ~/.config/emacs
 #+end_src
 
 *** TODO Install Dependencies (incomplete)
+
+- [ ] complete list of dependencies
 
 #+begin_src bash
 
@@ -125,7 +127,7 @@ The variables and their default values can be found in [[./etc/defaults.org]] an
 
 *** TODO home-manager example
 
-- [ ] fully working example
++ [ ] TODO fully working example
 
 #+begin_src nix :tangle no
 
@@ -187,7 +189,7 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 ** Package Management
 
-- [[https://github.com/jwiegley/use-package][GitHub]]
++ [[https://github.com/jwiegley/use-package][GitHub]]
 
 #+begin_src elisp
 
@@ -242,9 +244,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** evil
 
-- GitHub
-  - [[https://github.com/emacs-evil/evil][evil]]
-  - [[https://github.com/emacs-evil/evil-collection][evil-collection]]
++ GitHub
+  + [[https://github.com/emacs-evil/evil][evil]]
+  + [[https://github.com/emacs-evil/evil-collection][evil-collection]]
 
 #+begin_src elisp
 
@@ -271,7 +273,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** which-key
 
-- [[https://github.com/justbur/emacs-which-key][GitHub]]
++ [[https://github.com/justbur/emacs-which-key][GitHub]]
 
 #+begin_src elisp
 
@@ -289,7 +291,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** general
 
-- [[https://github.com/noctuid/general.el][GitHub]]
++ [[https://github.com/noctuid/general.el][GitHub]]
 
 #+begin_src elisp
 
@@ -450,7 +452,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Theme
 
-- [[https://github.com/catppuccin/emacs][GitHub]]
++ [[https://github.com/catppuccin/emacs][GitHub]]
 
 #+begin_src elisp
 
@@ -509,7 +511,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Org
 
-- [[https://orgmode.org/org.html][Manual]]
++ [[https://orgmode.org/org.html][Manual]]
 
 #+begin_src elisp
 
@@ -612,7 +614,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** magit
 
-- [[https://magit.vc/manual/magit/][Manual]]
++ [[https://magit.vc/manual/magit/][Manual]]
 
 #+begin_src elisp
 
@@ -714,13 +716,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** ivy, counsel, swiper
 
-- GitHub
-  - [[https://github.com/abo-abo/swiper][ivy, counsel, swiper]]
-  - [[https://github.com/Yevgnen/ivy-rich][ivy-rich]]
-  - [[https://github.com/radian-software/prescient.el][ivy-prescient]]
++ GitHub
+  + [[https://github.com/abo-abo/swiper][ivy, counsel, swiper]]
+  + [[https://github.com/Yevgnen/ivy-rich][ivy-rich]]
+  + [[https://github.com/radian-software/prescient.el][ivy-prescient]]
 
-- Tips:
-  - Use ~C-c C-o~ to open search results in a new buffer
++ Tips:
+  + Use ~C-c C-o~ to open search results in a new buffer
 
 #+begin_src elisp
 
@@ -802,7 +804,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** org-reveal (presentations)
 
-- [[https://github.com/yjwen/org-reveal/][org-reveal]]
++ [[https://github.com/yjwen/org-reveal/][org-reveal]]
 
 #+begin_src elisp
 
@@ -934,7 +936,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** Comments
 
-- [[https://github.com/redguardtoo/evil-nerd-commenter][GitHub]]
++ [[https://github.com/redguardtoo/evil-nerd-commenter][GitHub]]
 
 #+begin_src elisp
 
