@@ -125,7 +125,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq which-key-idle-delay 1.5)
   (setq which-key-idle-secondary-delay 0.05)
   :config
-  (which-key-mode))
+  (which-key-mode 1))
 
 #+end_src
 
@@ -192,12 +192,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :init
   (setq counsel-describe-function-function #'helpful-callable)
   (setq counsel-describe-variable-function #'helpful-variable)
-  :bind
-  ([remap describe-function] . counsel-describe-function)
-  ([remap describe-variable] . counsel-describe-variable)
-  ([remap describe-command] . helpful-command)
-  ([remap describe-key] . helpful-key)
   :general
+  ([remap describe-function] counsel-describe-function)
+  ([remap describe-variable] counsel-describe-variable)
+  ([remap describe-command] helpful-command)
+  ([remap describe-key] helpful-key)
   (hoppla/leader-def "hf" '(describe-function :wk "describe function"))
   (hoppla/leader-def "hc" '(describe-command :wk "describe command"))
   (hoppla/leader-def "hv" '(describe-variable :wk "describe variable"))
@@ -212,6 +211,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 ;; buffer local
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 2)
+
+#+end_src
+
+** Auto Revert (Reload Buffer on file change)
+
+#+begin_src elisp :tangle yes :results silent
+
+(auto-revert-mode 1)
 
 #+end_src
 
@@ -273,7 +280,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package doom-modeline
   :after nerd-icons
   :config
-  (setq doom-modeline-height 15)
+  (setq doom-modeline-height 30)
+  (setq doom-modeline-height 30)
   :init
   (doom-modeline-mode 1))
 
@@ -316,7 +324,23 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :config
   (dashboard-setup-startup-hook)
   ;; display dashboard when starting emacsclient
+  (hoppla/leader-def "d" '(dashboard-open :wk "open dashboard"))
   (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
+
+#+end_src
+
+** Search
+
+#+begin_src elisp :tangle yes :results silent
+
+(use-package anzu
+  :general
+  (:keymaps 'isearch-mode-map [remap isearc-query-replace] #'ansu-isearch-query-replace)
+  (:keymaps 'isearch-mode-map [remap isearc-query-replace-regexp] #'ansu-isearch-query-replace-regexp)
+  :config
+  (global-anzu-mode 1))
+(use-package anzu-evil
+  :after (anzu evil))
 
 #+end_src
 
@@ -464,22 +488,21 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     "Pi" '(persp-import :wk "import perspective from another frame")
     "Pr" '(persp-rename :wk "rename perspective")
     "Pk" '(persp-rename :wk "kill perspective")
-    "P]" '(persp-prev :wk "previous perspective")
-    "P[" '(persp-next :wk "next perspective")
+    "P[" '(persp-prev :wk "previous perspective")
+    "P]" '(persp-next :wk "next perspective")
     "Pm" '(persp-merge :wk "merge perspective")
     "Pu" '(persp-unmerge :wk "unmerge perspective")
     "PS" '(persp-state-save :wk "save all perspectives")
     "PL" '(persp-state-load :wk "load perspectives")))
 (use-package persp-projectile
-  :after persp-mode
-  :general
+  :after (persp-mode projectile)
+  :config
   (general-def :states '(normal insert emacs)
-    :keymaps 'projectile-mode-map
+    :keymaps 'persp-mode-map
     :prefix hoppla/leader
     :global-prefix hoppla/global-leader
-    :prefix-map 'hoppla/projectile-leader-prefix-map
-    "pp" '(projectile-persp-switch-project :wk "ibuffer")))
-
+    :prefix-map 'hoppla/persp-leader-prefix-map
+    "Pp" '(projectile-persp-switch-project :wk "switch project (clean perspective)")))
 
 #+end_src
 
@@ -501,7 +524,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :defer nil
   :diminish ivy-mode
   :general
-  (:keymaps 'normal "/" 'swiper)
+  (:keymaps 'normal "C-/" 'swiper)
   (:keymaps 'ivy-minibuffer-map "TAB" 'ivy-alt-done)
   (:keymaps 'ivy-switch-buffer-map "C-d" 'ivy-switch-buffer-kill)
   (:keymaps 'ivy-reverse-i-search-map "C-d" 'ivy-reverse-i-search-kill)
@@ -587,7 +610,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :after tree-sitter-langs
   :hook (tree-sitter-mode . tree-sitter-hl-mode)
   :config
-  (global-tree-sitter-mode))
+  (global-tree-sitter-mode 1))
 (use-package tree-sitter-langs)
 
 #+end_src
