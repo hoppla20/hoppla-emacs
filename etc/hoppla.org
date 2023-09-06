@@ -93,7 +93,7 @@ cd ~/.config/emacs
 
 *** TODO Install Dependencies (incomplete)
 
-+ [ ] complete list of dependencies
+- [ ] complete list of dependencies
 
 #+begin_src bash
 
@@ -127,7 +127,7 @@ The variables and their default values can be found in [[./etc/defaults.org]] an
 
 *** TODO home-manager example
 
-+ [ ] TODO fully working example
+- [ ] TODO fully working example
 
 #+begin_src nix :tangle no
 
