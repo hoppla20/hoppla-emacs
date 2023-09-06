@@ -30,5 +30,6 @@
     }
     {
       packages = std.harvest self ["emacs" "packages"];
+      dependencies = std.harvest self ["dependencies" "packages"];
     };
 }

@@ -22,10 +22,4 @@ in rec {
           ;
       };
   };
-
-  inherit
-    (pkgs)
-    ripgrep
-    tree-sitter
-    ;
 }

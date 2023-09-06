@@ -6,7 +6,11 @@
 * Table of Content                                                      :TOC:
 - [[#intro][Intro]]
   - [[#quick-start][Quick Start]]
+    - [[#clone-the-repository][Clone the Repository]]
+    - [[#install-dependencies-incomplete][Install Dependencies (incomplete)]]
+    - [[#build-run-install][Build, Run, Install]]
   - [[#configuration][Configuration]]
+    - [[#home-manager-example][home-manager example]]
 - [[#basic-configuration][Basic Configuration]]
   - [[#disable-customize][Disable Customize]]
   - [[#package-management][Package Management]]
@@ -75,7 +79,7 @@
 
 ** Quick Start
 
-First clone the repo
+*** Clone the Repository
 
 #+begin_src bash
 
@@ -87,19 +91,24 @@ cd ~/.config/emacs
 
 #+end_src
 
-Install needed dependencies (TODO very incomplete)
+*** TODO Install Dependencies (incomplete)
 
 #+begin_src bash
 
-nix profile install 'nixpkgs#ripgrep'
-nix profile install 'nixpkgs#tree-sitter'
+# show full list of dependencies
+nix eval --json '.#dependencies.x86_64-linux' | jq -r 'to_entries[] | .key'
+
+# install all dependencies
+nix eval --json '.#dependencies.x86_64-linux' | jq -r 'to_entries[] | .key' \
+    | xargs -i nix profile install 'nixpkgs#{}'
 
 #+end_src
 
-Then you can either build, install, or run the included emacs package.
+*** Build, Run, Install
 
 #+begin_src bash
 
+# to build it
 nix build '.#hoppla-emacs'
 # or to directly run it
 nix run '.#hoppla-emacs'
@@ -113,6 +122,45 @@ nix profile install '.#hoppla-emacs'
 ~hoppla-emacs~ exposes some variables that can be overwritten in order to change the appearance or behaviour.
 The variables and their default values can be found in [[./etc/defaults.org]] and can be overwritten with a
 [[./etc/user.el]] file.
+
+*** TODO home-manager example
+
+- [ ] fully working example
+
+#+begin_src nix :tangle no
+
+{
+  pkgs,
+  inputs,
+  darkTheme ? true,
+  ...
+}: let
+  catppuccinTheme =
+    if darkTheme
+    then "macchiato"
+    else "latte";
+in {
+  programs.emacs = {
+    enable = true;
+    package = inputs.hoppla-emacs.packages.${pkgs.system}.hoppla-emacs;
+  };
+
+  services.emacs = {
+    enable = true;
+    client.enable = true;
+    socketActivation.enable = true;
+  };
+
+  home.packages = builtins.attrValues inputs.hoppla-emacs.${pkgs.system}.dependencies;
+
+  xdg.configFile."emacs/etc/user.el".text = ''
+    (setq hoppla/catppuccin-flavor '${catppuccinTheme})
+    (setq hoppla/extra-workspace-dirs '(("/etc/nixos" . 0)
+                                        ("~/.config/emacs" . 0)))
+  '';
+}
+
+#+end_src
 
 * Basic Configuration
 

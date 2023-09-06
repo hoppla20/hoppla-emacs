@@ -23,7 +23,7 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-   (setq hoppla/nix-managed-plugins nil)
+   (setq hoppla/nix-managed-plugins t)
 
 #+end_src
 
