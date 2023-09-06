@@ -256,7 +256,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-(setq mouse-whell-scroll-amount (1 ((shift) . 1)))
+(setq mouse-whell-scroll-amount '(1 ((shift) . 1)))
 (setq mouse-whell-progressive-speed nil)
 (setq mouse-wheel-follow-mouse t)
 (setq scroll-step 1)
@@ -299,18 +299,24 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp :tangle yes :results silent
 
 (use-package dashboard
-  :after (projectile nerd-icons)
+  :after (nerd-icons projectile)
   :init
   (setq dashboard-center-content t)
   (setq dashboard-display-icons-p t)
   (setq dashboard-icon-type 'nerd-icons) 
   (setq dashboard-set-heading-icons t)
   (setq dashboard-set-file-icons t)
-  (setq dashboard-projects-switch-function 'counsel-projectile-switch-project)
+  (setq dashboard-projects-backend 'projectile)
+  (setq dashboard-projects-switch-function 'projectile-persp-switch-project)
+  (setq dashboard-items '((recents . 5)
+                          (bookmarks . 5)
+                          (projects . 5)
+                          (agenda . 5)
+                          (registers . 5)))
   :config
   (dashboard-setup-startup-hook)
-  ;; display dashboard when staarting emacsclient
-  (setq initial-buffer-choice (lambda () (switch-to-buffer "*dashboard*"))))
+  ;; display dashboard when starting emacsclient
+  (setq initial-buffer-choice (lambda () (get-buffer-create "*dashboard*"))))
 
 #+end_src
 
@@ -446,23 +452,34 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :prefix hoppla/leader
     :global-prefix hoppla/global-leader
     :prefix-map 'hoppla/persp-leader-prefix-map
-    (hoppla/leader-def "bi" '(persp-ibuffer :wk "ibuffer"))
-    (hoppla/leader-def "bI" '(ibuffer :wk "ibuffer"))
-    (hoppla/leader-def "bs" '(persp-counsel-switch-buffer :wk "switch buffer (all perspectives)"))
-    (hoppla/leader-def "bS" '(counsel-switch-buffer :wk "switch buffer (all perspectives)"))
-    (hoppla/leader-def "br" '(persp-remove-buffer :wk "remove buffer"))
-    (hoppla/leader-def "bA" '(persp-add-buffer :wk "add buffer to global perspective"))
-    (hoppla/leader-def "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective"))
+    "bi" '(persp-ibuffer :wk "ibuffer")
+    "bI" '(ibuffer :wk "ibuffer")
+    "bs" '(persp-counsel-switch-buffer :wk "switch buffer")
+    "bS" '(counsel-switch-buffer :wk "switch buffer (all perspectives)")
+    "br" '(persp-remove-buffer :wk "remove buffer")
+    "bA" '(persp-add-buffer :wk "add buffer to global perspective")
+    "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective")
 
-    (hoppla/leader-def "Ps" '(persp-switch :wk "switch perspective"))
-    (hoppla/leader-def "Pi" '(persp-import :wk "import perspective from another frame"))
-    (hoppla/leader-def "Pr" '(persp-rename :wk "rename perspective"))
-    (hoppla/leader-def "P]" '(persp-prev :wk "previous perspective"))
-    (hoppla/leader-def "P[" '(persp-next :wk "next perspective"))
-    (hoppla/leader-def "Pm" '(persp-merge :wk "merge perspective"))
-    (hoppla/leader-def "Pu" '(persp-unmerge :wk "unmerge perspective"))
-    (hoppla/leader-def "PS" '(persp-state-save :wk "save all perspectives"))
-    (hoppla/leader-def "PL" '(persp-state-save :wk "load perspectives"))))
+    "Ps" '(persp-switch :wk "switch perspective")
+    "Pi" '(persp-import :wk "import perspective from another frame")
+    "Pr" '(persp-rename :wk "rename perspective")
+    "Pk" '(persp-rename :wk "kill perspective")
+    "P]" '(persp-prev :wk "previous perspective")
+    "P[" '(persp-next :wk "next perspective")
+    "Pm" '(persp-merge :wk "merge perspective")
+    "Pu" '(persp-unmerge :wk "unmerge perspective")
+    "PS" '(persp-state-save :wk "save all perspectives")
+    "PL" '(persp-state-load :wk "load perspectives")))
+(use-package persp-projectile
+  :after persp-mode
+  :general
+  (general-def :states '(normal insert emacs)
+    :keymaps 'projectile-mode-map
+    :prefix hoppla/leader
+    :global-prefix hoppla/global-leader
+    :prefix-map 'hoppla/projectile-leader-prefix-map
+    "pp" '(projectile-persp-switch-project :wk "ibuffer")))
+
 
 #+end_src
 
