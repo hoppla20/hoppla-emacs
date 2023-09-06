@@ -1,7 +1,12 @@
 #+TITLE: Hoppla Emacs
 #+STARTUP: show4levels
 #+PROPERTY: header-args:elisp :tangle yes :results silent
-# -*- toc-org-max-depth: 4; -*-
+
+* Local Variables :noexport:
+
+# local variables:
+# toc-org-max-depth: 4
+# end:
 
 * Table of Content                                                      :TOC:
 - [[#intro][Intro]]
