@@ -158,6 +158,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (hoppla/leader-def "p" '(:ignore t :wk "projects"))
   (hoppla/leader-def "P" '(:ignore t :wk "perspectives"))
   (hoppla/leader-def "d" '(:ignore t :wk "directories"))
+  (hoppla/leader-def "s" '(:ignore t :wk "search"))
 
   (hoppla/leader-def "bi" '(ibuffer :wk "ibuffer"))
   (hoppla/leader-def "bk" '(kill-current-buffer :wk "kill current buffer"))
@@ -543,7 +544,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Completion
+** Completion & Search
 
 *** ivy, counsel, swiper
 
@@ -609,6 +610,16 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package company-box
   :after company
   :hook (company-mode . company-box-mode))
+
+#+end_src
+
+*** ripgrep
+
+#+begin_src elisp
+
+(use-package rg
+  :general
+  (hoppla/leader-def "sr" '(rg-menu :wk "ripgrep")))
 
 #+end_src
 

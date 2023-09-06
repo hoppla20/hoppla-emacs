@@ -11,7 +11,7 @@ in rec {
     config = "${inputs.self}/etc/hoppla.org";
     defaultInitFile = false;
     alwaysEnsure = true;
-    alwaysTangle = false;
+    alwaysTangle = true;
 
     extraEmacsPackages = epkgs:
       builtins.attrValues {
@@ -23,5 +23,9 @@ in rec {
       };
   };
 
-  python3WithPackages = pkgs.python3.withPackages (p: with p; [epc orjson sexpdata six paramiko]);
+  inherit
+    (pkgs)
+    ripgrep
+    tree-sitter
+    ;
 }

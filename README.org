@@ -18,6 +18,15 @@ cd ~/.config/emacs
 
 #+end_src
 
+Install needed dependencies (TODO very incomplete)
+
+#+begin_src bash
+
+nix profile install 'nixpkgs#ripgrep'
+nix profile install 'nixpkgs#tree-sitter'
+
+#+end_src
+
 Then you can either build, install, or run the included emacs package.
 
 #+begin_src bash
