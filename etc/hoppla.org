@@ -50,7 +50,7 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
   (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 
-#+end_src
+  #+end_src
 
 ** Startup Performance
 
@@ -141,6 +141,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package general
   :after evil
   :config
+  (general-evil-setup)
   (general-create-definer hoppla/leader-def
     :states '(normal insert emacs)
     :prefix hoppla/leader
@@ -156,8 +157,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (hoppla/leader-def "p" '(:ignore t :wk "projects"))
   (hoppla/leader-def "P" '(:ignore t :wk "perspectives"))
 
-  (hoppla/leader-def "bo" '(hoppla/other-buffer :wk "switch to other buffer"))
-  (hoppla/leader-def "bi" '(ibuffer :wk "ibuffer")))
+  (hoppla/leader-def "bi" '(ibuffer :wk "ibuffer"))
+  (hoppla/leader-def "bk" '(kill-current-buffer :wk "kill current buffer"))
+  (hoppla/leader-def "bo" '(hoppla/other-buffer :wk "switch to other buffer")))
 
 #+end_src
 
@@ -166,11 +168,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp :tangle yes :results silent
 
 (use-package hydra
-  :config
-  (defhydra hydra-zoom (global-map "<f2>")
-	    zoom
-	    ("[" text-scale-increase "in")
-	    ("]" text-scale-decrese "out")))
+  :defer t)
 
 #+end_src
 
@@ -207,6 +205,16 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
+** Indents
+
+#+begin_src elisp :tangle yes :results silent
+
+;; buffer local
+(setq-default indent-tabs-mode nil)
+(setq-default tab-width 2)
+
+#+end_src
+
 * UI
 ** Basics
 
@@ -215,11 +223,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (when (window-system)
   (tool-bar-mode -1))
 
-(set-fringe-mode 5)
+(set-fringe-mode 10)
 
 #+end_src
 
-** Fonts
+*** Fonts
 
 #+begin_src elisp :tangle yes :results silent
 
@@ -228,16 +236,30 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Line / Column Numbers
+*** Line / Column Numbers
 
 #+begin_src elisp :tangle yes :results silent
 
-(display-line-numbers-mode 1)
+(dolist (mode '(text-mode-hook
+                prog-mode-hook
+                conf-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 1))))
 (dolist (mode '(org-mode-hook
                 term-mode-hook
                 shell-mode-hook
                 eshell-mode-hook))
   (add-hook mode (lambda () (display-line-numbers-mode 0))))
+
+#+end_src
+
+*** Improved Scrolling
+
+#+begin_src elisp :tangle yes :results silent
+
+(setq mouse-whell-scroll-amount (1 ((shift) . 1)))
+(setq mouse-whell-progressive-speed nil)
+(setq mouse-wheel-follow-mouse t)
+(setq scroll-step 1)
 
 #+end_src
 
@@ -308,7 +330,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq org-edit-src-content-indentation 0)
   (setq org-src-tab-acts-natively t)
   (setq org-src-preserve-indentation t)
-  (add-to-list 'org-modules 'org-tempo t)
+  :config
+  (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("ets" . "src elisp :tangle yes :results silent")))
 
 #+end_src
@@ -319,13 +342,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (defun hoppla/org-mode-visual-fill ()
-    (setq visual-fill-column-width 120)
-    (setq visual-fill-column-center-text t)
-    (visual-fill-column-mode 1))
-  (use-package visual-fill-column
-    :after org
-    :hook (org-mode . hoppla/org-mode-visual-fill))
+(defun hoppla/org-mode-visual-fill ()
+  (setq visual-fill-column-width 120)
+  (setq visual-fill-column-center-text t)
+  (visual-fill-column-mode 1))
+(use-package visual-fill-column
+  :after org
+  :hook (org-mode . hoppla/org-mode-visual-fill))
 
 #+end_src
 
@@ -333,12 +356,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (defun efs/org-babel-tangle-config ()
-    (when (string-equal (file-name-directory (buffer-file-name))
-                        (expand-file-name user-emacs-directory))
-      (let ((org-confirm-babel-evaluate nil))
-        (org-babel-tangle))))
-  (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+(defun efs/org-babel-tangle-config ()
+  (when (string-equal (file-name-directory (buffer-file-name))
+                      (expand-file-name user-emacs-directory))
+    (let ((org-confirm-babel-evaluate nil))
+      (org-babel-tangle))))
+(add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 #+end_src
 
@@ -346,12 +369,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package org-sticky-header
-    :after org
-    :hook (org-mode . org-sticky-header-mode))
-  (use-package org-superstar
-    :after org
-    :hook (org-mode . org-superstar-mode))
+(use-package org-sticky-header
+  :after org
+  :hook (org-mode . org-sticky-header-mode))
+(use-package org-superstar
+  :after org
+  :hook (org-mode . org-superstar-mode))
 
 #+end_src
 
@@ -363,11 +386,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package magit
-    :config
-    (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
-    :general
-    (hoppla/leader-def "gg" 'magit))
+(use-package magit
+  :config
+  (setq magit-display-buffer-function #'magit-display-buffer-fullframe-status-v1)
+  :general
+  (hoppla/leader-def "gg" 'magit))
 
 #+end_src
 
@@ -375,68 +398,71 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package projectile
-    :diminish projectile-mode
-    :init
-    (setq projectile-completion-system 'ivy)
-    (setq projectile-switch-project-action #'projectile-dired)
-    (when (file-directory-p hoppla/workspace-dir)
-      (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
-    :config
-    (projectile-mode 1)
-    (general-def :states '(normal insert emacs)
-      :keymaps 'projectile-mode-map
-      :prefix hoppla/leader
-      :global-prefix hoppla/global-leader
-      :prefix-map 'hoppla/projectile-leader-prefix-map
-      "ff" '(projectile-find-file :wk "search for project file")
-      "fd" '(projectile-find-dir :wk "search for project directory")
-      "fr" '(projectile-recentf :wk "find recent project file")
-      "pp" '(projectile-switch-project :wk "switch project")
-      "po" '(projectile-switch-open-project :wk "switch open projects")
-      "pa" '(projectile-add-project :wk "add project")
-      "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")))
-  (use-package counsel-projectile
-    :after projectile
-    :config
-    (counsel-projectile-mode 1))
+(use-package projectile
+  :diminish projectile-mode
+  :init
+  (setq projectile-completion-system 'ivy)
+  (setq projectile-switch-project-action #'projectile-dired)
+  (when (file-directory-p hoppla/workspace-dir)
+    (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
+  :config
+  (projectile-mode 1)
+  (general-def :states '(normal insert emacs)
+    :keymaps 'projectile-mode-map
+    :prefix hoppla/leader
+    :global-prefix hoppla/global-leader
+    :prefix-map 'hoppla/projectile-leader-prefix-map
+    "ff" '(projectile-find-file :wk "search for project file")
+    "fd" '(projectile-find-dir :wk "search for project directory")
+    "fr" '(projectile-recentf :wk "find recent project file")
+    "pp" '(projectile-switch-project :wk "switch project")
+    "po" '(projectile-switch-open-project :wk "switch open projects")
+    "pa" '(projectile-add-project :wk "add project")
+    "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")))
+(use-package counsel-projectile
+  :after projectile
+  :config
+  (counsel-projectile-mode 1))
 
-      #+end_src
+#+end_src
 
 *** perspective
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package perspective
-    :defer nil
-    :hook (kill-emacs . persp-state-save)
-    :after counsel
-    :init
-    (unless (file-exists-p hoppla/persp-states-dir)
-      (make-directory hoppla/persp-states-dir))
-    (setq persp-state-default-file (expand-file-name "default.el" hoppla/persp-states-dir))
-    (setq persp-suppress-no-prefix-key-warning t)
-    :config
-    (persp-mode 1)
-    (general-def :states '(normal insert emacs)
-      :keymaps 'persp-mode-map
-      :prefix hoppla/leader
-      :global-prefix hoppla/global-leader
-      :prefix-map 'hoppla/persp-leader-prefix-map
-      (hoppla/leader-def "bi" '(persp-ibuffer :wk "ibuffer"))
-      (hoppla/leader-def "bI" '(ibuffer :wk "ibuffer"))
-      (hoppla/leader-def "bs" '(persp-counsel-switch-buffer :wk "switch buffer (all perspectives)"))
-      (hoppla/leader-def "bS" '(counsel-switch-buffer :wk "switch buffer (all perspectives)"))
-      (hoppla/leader-def "br" '(persp-remove-buffer :wk "remove buffer"))
-      (hoppla/leader-def "bA" '(persp-add-buffer :wk "add buffer to global perspective"))
-      (hoppla/leader-def "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective"))
-      (hoppla/leader-def "Pr" '(persp-rename :wk "rename perspective"))
-      (hoppla/leader-def "P]" '(persp-prev :wk "previous perspective"))
-      (hoppla/leader-def "P[" '(persp-next :wk "next perspective"))
-      (hoppla/leader-def "Pm" '(persp-merge :wk "merge perspective"))
-      (hoppla/leader-def "Pu" '(persp-unmerge :wk "unmerge perspective"))
-      (hoppla/leader-def "Ps" '(persp-state-save :wk "save all perspectives"))
-      (hoppla/leader-def "Pl" '(persp-state-save :wk "load perspectives"))))
+(use-package perspective
+  :defer nil
+  :hook (kill-emacs . persp-state-save)
+  :after counsel
+  :init
+  (unless (file-exists-p hoppla/persp-states-dir)
+    (make-directory hoppla/persp-states-dir))
+  (setq persp-state-default-file (expand-file-name "default.el" hoppla/persp-states-dir))
+  (setq persp-suppress-no-prefix-key-warning t)
+  :config
+  (persp-mode 1)
+  (general-def :states '(normal insert emacs)
+    :keymaps 'persp-mode-map
+    :prefix hoppla/leader
+    :global-prefix hoppla/global-leader
+    :prefix-map 'hoppla/persp-leader-prefix-map
+    (hoppla/leader-def "bi" '(persp-ibuffer :wk "ibuffer"))
+    (hoppla/leader-def "bI" '(ibuffer :wk "ibuffer"))
+    (hoppla/leader-def "bs" '(persp-counsel-switch-buffer :wk "switch buffer (all perspectives)"))
+    (hoppla/leader-def "bS" '(counsel-switch-buffer :wk "switch buffer (all perspectives)"))
+    (hoppla/leader-def "br" '(persp-remove-buffer :wk "remove buffer"))
+    (hoppla/leader-def "bA" '(persp-add-buffer :wk "add buffer to global perspective"))
+    (hoppla/leader-def "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective"))
+
+    (hoppla/leader-def "Ps" '(persp-switch :wk "switch perspective"))
+    (hoppla/leader-def "Pi" '(persp-import :wk "import perspective from another frame"))
+    (hoppla/leader-def "Pr" '(persp-rename :wk "rename perspective"))
+    (hoppla/leader-def "P]" '(persp-prev :wk "previous perspective"))
+    (hoppla/leader-def "P[" '(persp-next :wk "next perspective"))
+    (hoppla/leader-def "Pm" '(persp-merge :wk "merge perspective"))
+    (hoppla/leader-def "Pu" '(persp-unmerge :wk "unmerge perspective"))
+    (hoppla/leader-def "PS" '(persp-state-save :wk "save all perspectives"))
+    (hoppla/leader-def "PL" '(persp-state-save :wk "load perspectives"))))
 
 #+end_src
 
@@ -454,37 +480,39 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package ivy
-    :defer nil
-    :diminish ivy-mode
-    :general
-    (:keymaps 'normal "/" 'swiper)
-    (:keymaps 'ivy-minibuffer-map "TAB" 'ivy-alt-done)
-    (:keymaps 'ivy-switch-buffer-map "C-d" 'ivy-switch-buffer-kill)
-    (:keymaps 'ivy-reverse-i-search-map "C-d" 'ivy-reverse-i-search-kill)
-    (:keymaps '(ivy-minibuffer-map ivy-switch-buffer-map ivy-reverse-i-search-map) "C-k" 'ivy-previous-line)
-    (:keymaps '(ivy-minibuffer-map ivy-switch-buffer-map ivy-reverse-i-search-map) "C-j" 'ivy-next-line)
-    :config
-    (ivy-mode 1))
-  (use-package counsel
-    :general
-    (hoppla/leader-def "bs" '(counsel-switch-buffer :wk "switch buffer"))
-    (hoppla/leader-def "ff" '(counsel-fzf :wk "find file"))
-    (hoppla/leader-def "fr" '(counsel-recentf :wk "find recent file"))
-    :config
-    (counsel-mode 1))
-  (use-package ivy-rich
-    :after (ivy counsel)
-    :config
-    (ivy-rich-mode 1))
-  (use-package ivy-prescient
-    :after (ivy counsel)
-    :init
-    (setq ivy-prescient-enable-filtering nil)
-    :config
-    (prescient-persist-mode 1)
-    (ivy-prescient-mode 1))
-
+(use-package ivy
+  :defer nil
+  :diminish ivy-mode
+  :general
+  (:keymaps 'normal "/" 'swiper)
+  (:keymaps 'ivy-minibuffer-map "TAB" 'ivy-alt-done)
+  (:keymaps 'ivy-switch-buffer-map "C-d" 'ivy-switch-buffer-kill)
+  (:keymaps 'ivy-reverse-i-search-map "C-d" 'ivy-reverse-i-search-kill)
+  (:keymaps '(ivy-minibuffer-map ivy-switch-buffer-map ivy-reverse-i-search-map) "C-k" 'ivy-previous-line)
+  (:keymaps '(ivy-minibuffer-map ivy-switch-buffer-map ivy-reverse-i-search-map) "C-j" 'ivy-next-line)
+  :config
+  (ivy-mode 1))
+(use-package counsel
+  :general
+  (hoppla/leader-def "bs" '(counsel-switch-buffer :wk "switch buffer"))
+  (hoppla/leader-def "ff" '(counsel-fzf :wk "find file"))
+  (hoppla/leader-def "fr" '(counsel-recentf :wk "find recent file"))
+  :config
+  (counsel-mode 1))
+(use-package ivy-rich
+  :after (ivy counsel)
+  :config
+  (ivy-rich-mode 1))
+(use-package ivy-prescient
+  :after (ivy counsel)
+  :init
+  (setq ivy-prescient-enable-filtering nil)
+  :config
+  (prescient-persist-mode 1)
+  (ivy-prescient-mode 1))
+(use-package ivy-hydra
+  :defer t
+  :after hydra)
 
 #+end_src
 
@@ -492,18 +520,18 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package company
-    :after lsp-mode
-    :hook (lsp-mode . company-mode)
-    :general
-    (:keymaps 'company-active-map "<tab>" 'company-complete-selection)
-    (:keymaps 'lsp-mode-map "<tab>" 'company-indent-or-complete-common)
-    :init
-    (setq company-minimum-prefix-length 1)
-    (setq company-idle-delay 0.0))
-  (use-package company-box
-    :after company
-    :hook (company-mode . company-box-mode))
+(use-package company
+  :after lsp-mode
+  :hook (lsp-mode . company-mode)
+  :general
+  (:keymaps 'company-active-map "<tab>" 'company-complete-selection)
+  (:keymaps 'lsp-mode-map "<tab>" 'company-indent-or-complete-common)
+  :init
+  (setq company-minimum-prefix-length 1)
+  (setq company-idle-delay 0.0))
+(use-package company-box
+  :after company
+  :hook (company-mode . company-box-mode))
 
 #+end_src
 
@@ -513,8 +541,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  ;; no-littering is required in init.el
-  (no-littering-theme-backups)
+;; no-littering is required in init.el
+(no-littering-theme-backups)
 
 #+end_src
 
@@ -524,11 +552,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package htmlize)
-  (use-package ox-reveal
-    :after htmlize
-    :config
-    (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
+(use-package htmlize)
+(use-package ox-reveal
+  :after htmlize
+  :config
+  (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
 
 #+end_src
 
@@ -538,12 +566,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package tree-sitter
-    :after tree-sitter-langs
-    :hook (tree-sitter-mode . tree-sitter-hl-mode)
-    :config
-    (global-tree-sitter-mode))
-  (use-package tree-sitter-langs)
+(use-package tree-sitter
+  :after tree-sitter-langs
+  :hook (tree-sitter-mode . tree-sitter-hl-mode)
+  :config
+  (global-tree-sitter-mode))
+(use-package tree-sitter-langs)
 
 #+end_src
 
@@ -551,16 +579,16 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (defun hoppla/lsp-mode-setup ())
+(defun hoppla/lsp-mode-setup ())
 
-  (use-package lsp-mode
-    :commands (lsp lsp-deferred)
-    :hook (lsp-mode . hoppla/lsp-mode-setup)
-    :init
-    (setq read-process-output-max (* 1 1024 1024))
-    (setq lsp-keymap-prefix "C-l")
-    :config
-    (lsp-enable-which-key-integration t))
+(use-package lsp-mode
+  :commands (lsp lsp-deferred)
+  :hook (lsp-mode . hoppla/lsp-mode-setup)
+  :init
+  (setq read-process-output-max (* 1 1024 1024))
+  (setq lsp-keymap-prefix "C-l")
+  :config
+  (lsp-enable-which-key-integration t))
 
 #+end_src
 
@@ -568,11 +596,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package lsp-ui
-    :after lsp-mode
-    :hook (lsp-mode . lsp-ui-mode)
-    :init
-    (setq lsp-ui-doc-position 'bottom))
+(use-package lsp-ui
+  :after lsp-mode
+  :hook (lsp-mode . lsp-ui-mode)
+  :init
+  (setq lsp-ui-doc-position 'bottom))
 
 #+end_src
 
@@ -580,8 +608,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package lsp-ivy
-    :after lsp-mode)
+(use-package lsp-ivy
+  :after lsp-mode)
 
 #+end_src
 
@@ -591,12 +619,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package python-mode
-    :hook (python-mode . lsp-deferred))
-  (use-package pyvenv
-    :after python-mode
-    :config
-    (pyvenv-mode 1))
+(use-package python-mode
+  :hook (python-mode . lsp-deferred))
+(use-package pyvenv
+  :after python-mode
+  :config
+  (pyvenv-mode 1))
 
 #+end_src
 
@@ -604,25 +632,25 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package lsp-nix
-    :ensure lsp-mode
-    :after lsp-mode
-    :demand t
-    :init
-    (setq lsp-nix-nil-formatter ["alejandra"])
-    (setq lsp-nix-nil-ignored-diagnostic ["unused_binding"]))
-  (use-package nix-mode
-    :hook (nix-mode . lsp-deferred)
-    :mode ("\\.nix\\'" "\\.nix.in\\'"))
-  (use-package nix-drv-mode
-    :ensure nix-mode
-    :mode "\\.drv\\'")
-  (use-package nix-shell
-    :ensure nix-mode
-    :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
-  (use-package nix-repl
-    :ensure nix-mode
-    :commands (nix-repl))
+(use-package lsp-nix
+  :ensure lsp-mode
+  :after lsp-mode
+  :demand t
+  :init
+  (setq lsp-nix-nil-formatter ["alejandra"])
+  (setq lsp-nix-nil-ignored-diagnostic ["unused_binding"]))
+(use-package nix-mode
+  :hook (nix-mode . lsp-deferred)
+  :mode ("\\.nix\\'" "\\.nix.in\\'"))
+(use-package nix-drv-mode
+  :ensure nix-mode
+  :mode "\\.drv\\'")
+(use-package nix-shell
+  :ensure nix-mode
+  :commands (nix-shell-unpack nix-shell-configure nix-shell-build))
+(use-package nix-repl
+  :ensure nix-mode
+  :commands (nix-repl))
 
 #+end_src
 
@@ -630,10 +658,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package lsp-yaml
-    :ensure lsp-mode
-    :after lsp-mode
-    :demand t)
+(use-package lsp-yaml
+  :ensure lsp-mode
+  :after lsp-mode
+  :demand t)
 
 #+end_src
 
@@ -641,10 +669,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package lsp-ansible
-    :ensure lsp-mode
-    :after lsp-mode
-    :demand t)
+(use-package lsp-ansible
+  :ensure lsp-mode
+  :after lsp-mode
+  :demand t)
 
 #+end_src
 
@@ -656,10 +684,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package evil-nerd-commenter
-    :after evil
-    :config
-    (evilnc-default-hotkeys))
+(use-package evil-nerd-commenter
+  :after evil
+  :config
+  (evilnc-default-hotkeys))
 
 #+end_src
 
@@ -667,8 +695,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package rainbow-delimiters
-    :hook (prog-mode . rainbow-delimiters-mode))
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
 
 #+end_src
 
@@ -678,11 +706,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (run-with-idle-timer
-   5 nil
-   (lambda ()
-     (setq file-name-handler-alist file-name-handler-alist-original)
-     (makunbound 'file-name-handler-alist-original)
-     (message "file-name-handler-alist restored")))
+(run-with-idle-timer
+ 5 nil
+ (lambda ()
+   (setq file-name-handler-alist file-name-handler-alist-original)
+   (makunbound 'file-name-handler-alist-original)
+   (message "file-name-handler-alist restored")))
 
 #+end_src
