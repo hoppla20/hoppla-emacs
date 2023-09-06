@@ -1,10 +1,86 @@
+#+TITLE: Hoppla Emacs
 #+STARTUP: show4levels
 #+PROPERTY: header-args:elisp :tangle yes :results silent
 #+OPTIONS: toc:4
 
+* Table of Content                                                      :TOC:
+- [[#intro][Intro]]
+  - [[#quick-start][Quick Start]]
+  - [[#configuration][Configuration]]
+- [[#basic-configuration][Basic Configuration]]
+  - [[#disable-customize][Disable Customize]]
+  - [[#package-management][Package Management]]
+  - [[#startup-performance][Startup Performance]]
+  - [[#keybindings][Keybindings]]
+  - [[#recent-files][Recent Files]]
+  - [[#helpful][Helpful]]
+  - [[#indents][Indents]]
+  - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
+- [[#ui][UI]]
+  - [[#basics][Basics]]
+  - [[#modeline][Modeline]]
+  - [[#theme][Theme]]
+  - [[#dashboard][Dashboard]]
+  - [[#search][Search]]
+- [[#plugins][Plugins]]
+  - [[#org][Org]]
+  - [[#essentials][Essentials]]
+  - [[#completion--search][Completion & Search]]
+  - [[#misc][Misc]]
+  - [[#development][Development]]
+- [[#runtime][Runtime]]
+  - [[#performance][Performance]]
+
 * Intro
 
-Inspired by [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch]].
+- emacs part inspired by [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch]].
+  - theoretically compatible with non-nix emacs
+  - some packages might not be available in the normal elpa, melpa, ... archives
+- nix part uses [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] to offer
+  - a nix package that also includes all emacs packages used by this configuration
+  - uses emacs-overlay's =emacsWithPackagesFromUsePackage= to automatically
+    generate the list of nix emacsPackages
+
+** Quick Start
+
+First clone the repo
+
+#+begin_src bash
+
+# backup your current config
+mv ~/.config/emacs ~/.config/emacs.bak
+# clone the repo
+git clone <repo-url> ~/.config/emacs
+cd ~/.config/emacs
+
+#+end_src
+
+Install needed dependencies (TODO very incomplete)
+
+#+begin_src bash
+
+nix profile install 'nixpkgs#ripgrep'
+nix profile install 'nixpkgs#tree-sitter'
+
+#+end_src
+
+Then you can either build, install, or run the included emacs package.
+
+#+begin_src bash
+
+nix build '.#hoppla-emacs'
+# or to directly run it
+nix run '.#hoppla-emacs'
+# or to install it
+nix profile install '.#hoppla-emacs'
+
+#+end_src
+    
+** Configuration
+
+~hoppla-emacs~ exposes some variables that can be overwritten in order to change the appearance or behaviour.
+The variables and their default values can be found in [[./etc/defaults.org]] and can be overwritten with a
+[[./etc/user.el]] file.
 
 * Basic Configuration
 
