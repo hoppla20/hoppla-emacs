@@ -1,0 +1,36 @@
+* Hoppla Emacs
+
+- uses [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] to offer
+  - the emacs configuration (mainly [[./etc/hoppla.org]])
+  - a nix package that also includes all emacs packages used by [[./etc/hoppla.org]]
+    
+** Quick Start
+
+First clone the repo
+
+#+begin_src bash
+
+# backup your current config
+mv ~/.config/emacs ~/.config/emacs.bak
+# clone the repo
+git clone <repo-url> ~/.config/emacs
+cd ~/.config/emacs
+
+#+end_src
+
+Then you can either build, install, or run the included emacs package.
+
+#+begin_src bash
+
+nix build '.#hoppla-emacs'
+# or to directly run it
+nix run '.#hoppla-emacs'
+# or to install it
+nix profile install '.#hoppla-emacs'
+
+#+end_src
+
+** Configuration
+
+~hoppla-emacs~ exposes some variables that can be overwritten in order to change the appearance or behaviour.
+The variables and their default values can be found in [[./etc/defaults.org]].
