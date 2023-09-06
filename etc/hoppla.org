@@ -57,7 +57,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-(setq gc-cons-threshold-original gc-cons-threshold)
 (setq gc-cons-threshold (* 100 1024 1024))
 
 (setq file-name-handler-alist-original file-name-handler-alist)
@@ -212,10 +211,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-(tool-bar-mode -1)
-(set-fringe-mode 5)
+(when (window-system)
+  (tool-bar-mode -1))
 
-(use-package nerd-icons)
+(set-fringe-mode 5)
 
 #+end_src
 
@@ -223,27 +222,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-(defun hoppla/gui-fonts ()
-  (set-face-attribute 'default nil :font hoppla/default-font :height hoppla/default-font-size)
-  (set-face-attribute 'fixed-pitch nil :font hoppla/default-font :height hoppla/default-font-size)
-  (set-face-attribute 'variable-pitch nil :font hoppla/default-variable-font :height hoppla/default-font-size))
-
-(add-to-list 'initial-frame-alist `(font . ,hoppla/default-font))
 (add-to-list 'default-frame-alist `(font . ,hoppla/default-font))
-
-;; if gui do something in whatver type of emacs instance we are using
-(defun apply-if-gui (&rest action)
-  "Do specified ACTION if we're in a gui regardless of daemon or not."
-  (if (daemonp)
-      (add-hook 'after-make-frame-functions
-                (lambda (frame)
-                  (select-frame frame)
-                  (if (display-graphic-p frame)
-                      (apply action))))
-    (if (display-graphic-p)
-        (apply action))))
-
-(apply-if-gui 'hoppla/gui-fonts)
+(use-package nerd-icons)
 
 #+end_src
 
@@ -576,6 +556,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :commands (lsp lsp-deferred)
     :hook (lsp-mode . hoppla/lsp-mode-setup)
     :init
+    (setq read-process-output-max (* 1 1024 1024))
     (setq lsp-keymap-prefix "C-l")
     :config
     (lsp-enable-which-key-integration t))
@@ -699,10 +680,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (run-with-idle-timer
    5 nil
    (lambda ()
-     (setq gc-cons-threshold gc-cons-threshold-original)
      (setq file-name-handler-alist file-name-handler-alist-original)
-     (makunbound 'gc-cons-threshold-original)
      (makunbound 'file-name-handler-alist-original)
-     (message "gc-cons-threshold and file-name-handler-alist restored")))
+     (message "file-name-handler-alist restored")))
 
 #+end_src
