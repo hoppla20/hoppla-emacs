@@ -12,18 +12,18 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes :results silent
 
-  ;; still set a custom-file path so that the init.el will not be modified if custom is
-  ;; invoked
-  (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
-  (dolist (sym '(customize-option customize-browse customize-group customize-face
-                                  customize-rogue customize-saved customize-apropos
-                                  customize-changed customize-unsaved customize-variable
-                                  customize-set-value customize-customized customize-set-variable
-                                  customize-apropos-faces customize-save-variable
-                                  customize-apropos-groups customize-apropos-options
-                                  customize-changed-options customize-save-customized))
-    (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
-  (put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
+;; still set a custom-file path so that the init.el will not be modified if custom is
+;; invoked
+(setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+(dolist (sym '(customize-option customize-browse customize-group customize-face
+                                customize-rogue customize-saved customize-apropos
+                                customize-changed customize-unsaved customize-variable
+                                customize-set-value customize-customized customize-set-variable
+                                customize-apropos-faces customize-save-variable
+                                customize-apropos-groups customize-apropos-options
+                                customize-changed-options customize-save-customized))
+  (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
+(put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
 
 #+end_src
 
@@ -33,21 +33,21 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 
 #+begin_src elisp :tangle yes :results silent
 
-  (require 'package)
-  (unless hoppla/nix-managed-plugins
-    (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
-                            ("melpaStable" . "https://stable.melpa.org/packages/")
-                            ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
-                            ("elpa"        . "https://elpa.gnu.org/packages/")
-                            ("elpaDevel"   . "https://elpa.gnu.org/devel/"))))
-  (package-initialize)
-  (unless (or hoppla/nix-managed-plugins package-archive-contents)
-    (package-refresh-contents))
+(require 'package)
+(unless hoppla/nix-managed-plugins
+  (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
+                           ("melpaStable" . "https://stable.melpa.org/packages/")
+                           ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
+                           ("elpa"        . "https://elpa.gnu.org/packages/")
+                           ("elpaDevel"   . "https://elpa.gnu.org/devel/"))))
+(package-initialize)
+(unless (or hoppla/nix-managed-plugins package-archive-contents)
+  (package-refresh-contents))
 
-  (setq use-package-always-ensure t)
-  (unless (or hoppla/nix-managed-plugins (package-installed-p 'use-package))
-    (package-install 'use-package))
-  (eval-when-compile (require 'use-package))
+(setq use-package-always-ensure t)
+(unless (or hoppla/nix-managed-plugins (package-installed-p 'use-package))
+  (package-install 'use-package))
+(eval-when-compile (require 'use-package))
 
 #+end_src
 
@@ -57,19 +57,19 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (setq gc-cons-threshold-original gc-cons-threshold)
-  (setq gc-cons-threshold (* 100 1024 1024))
+(setq gc-cons-threshold-original gc-cons-threshold)
+(setq gc-cons-threshold (* 100 1024 1024))
 
-  (setq file-name-handler-alist-original file-name-handler-alist)
-  (setq file-name-handler-alist nil)
+(setq file-name-handler-alist-original file-name-handler-alist)
+(setq file-name-handler-alist nil)
 
-  (defun hoppla/display-startup-time ()
-    (message "Emacs loaded in %s with %d garbage collections."
-             (format "%.2f seconds"
-                     (float-time
-                      (time-subtract after-init-time before-init-time)))
-             gcs-done))
-  (add-hook 'emacs-startup-hook #'hoppla/display-startup-time)
+(defun hoppla/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))
+           gcs-done))
+(add-hook 'emacs-startup-hook #'hoppla/display-startup-time)
 
 #+end_src
 
@@ -77,8 +77,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  ;; Make ESC quit prompts
-  (global-set-key (kbd "<escape>") 'keyboard-escape-quit)
+;; Make ESC quit prompts
+(global-set-key (kbd "<escape>") 'keyboard-escape-quit)
 
 #+end_src
 
@@ -90,24 +90,24 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package goto-chg)
-  (use-package evil
-    :after goto-chg
-    :init
-    (setq evil-undo-system 'undo-redo
-          evil-want-integration t
-          evil-want-keybinding nil
-          evil-want-C-i-jump t
-          evil-want-C-u-scroll t
-          evil-overriding-maps nil)
-    :config
-    (evil-mode 1)
-    (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
-    (evil-global-set-key 'motion "j" 'evil-next-visual-line))
-  (use-package evil-collection
-    :after evil
-    :config
-    (evil-collection-init))
+(use-package goto-chg)
+(use-package evil
+  :after goto-chg
+  :init
+  (setq evil-undo-system 'undo-redo
+        evil-want-integration t
+        evil-want-keybinding nil
+        evil-want-C-i-jump t
+        evil-want-C-u-scroll t
+        evil-overriding-maps nil)
+  :config
+  (evil-mode 1)
+  (evil-global-set-key 'motion "k" 'evil-previous-visual-line)
+  (evil-global-set-key 'motion "j" 'evil-next-visual-line))
+(use-package evil-collection
+  :after evil
+  :config
+  (evil-collection-init))
 
 #+end_src
 
@@ -117,15 +117,15 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package which-key
-    :defer 0
-    :diminish which-key-mode
-    :init
-    (setq which-key-show-early-on-C-h t)
-    (setq which-key-idle-delay 1.5)
-    (setq which-key-idle-secondary-delay 0.05)
-    :config
-    (which-key-mode))
+(use-package which-key
+  :defer 0
+  :diminish which-key-mode
+  :init
+  (setq which-key-show-early-on-C-h t)
+  (setq which-key-idle-delay 1.5)
+  (setq which-key-idle-secondary-delay 0.05)
+  :config
+  (which-key-mode))
 
 #+end_src
 
@@ -135,29 +135,42 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (defun hoppla/other-buffer ()
-    (interactive)
-    (switch-to-buffer (other-buffer)))
-  (use-package general
-    :after evil
-    :config
-    (general-create-definer hoppla/leader-def
-      :states '(normal insert emacs)
-      :prefix hoppla/leader
-      :global-prefix hoppla/global-leader
-      :prefix-map 'hoppla/leader-prefix-map)
-    (hoppla/leader-def "t" '(:ignore t :wk "toggles"))
-    (hoppla/leader-def "b" '(:ignore t :wk "buffers"))
-    (hoppla/leader-def "w" '(:ignore t :wk "windows"))
-    (hoppla/leader-def "f" '(:ignore t :wk "files"))
-    (hoppla/leader-def "g" '(:ignore t :wk "git"))
-    (hoppla/leader-def "h" '(:ignore t :wk "help"))
-    (hoppla/leader-def "d" '(:ignore t :wk "desktops"))
-    (hoppla/leader-def "p" '(:ignore t :wk "projects"))
-    (hoppla/leader-def "P" '(:ignore t :wk "perspectives"))
+(defun hoppla/other-buffer ()
+  (interactive)
+  (switch-to-buffer (other-buffer)))
+(use-package general
+  :after evil
+  :config
+  (general-create-definer hoppla/leader-def
+    :states '(normal insert emacs)
+    :prefix hoppla/leader
+    :global-prefix hoppla/global-leader
+    :prefix-map 'hoppla/leader-prefix-map)
+  (hoppla/leader-def "t" '(:ignore t :wk "toggles"))
+  (hoppla/leader-def "b" '(:ignore t :wk "buffers"))
+  (hoppla/leader-def "w" '(:ignore t :wk "windows"))
+  (hoppla/leader-def "f" '(:ignore t :wk "files"))
+  (hoppla/leader-def "g" '(:ignore t :wk "git"))
+  (hoppla/leader-def "h" '(:ignore t :wk "help"))
+  (hoppla/leader-def "d" '(:ignore t :wk "desktops"))
+  (hoppla/leader-def "p" '(:ignore t :wk "projects"))
+  (hoppla/leader-def "P" '(:ignore t :wk "perspectives"))
 
-    (hoppla/leader-def "bo" '(hoppla/other-buffer :wk "switch to other buffer"))
-    (hoppla/leader-def "bi" '(ibuffer :wk "ibuffer")))
+  (hoppla/leader-def "bo" '(hoppla/other-buffer :wk "switch to other buffer"))
+  (hoppla/leader-def "bi" '(ibuffer :wk "ibuffer")))
+
+#+end_src
+
+*** hydra
+
+#+begin_src elisp :tangle yes :results silent
+
+(use-package hydra
+  :config
+  (defhydra hydra-zoom (global-map "<f2>")
+	    zoom
+	    ("[" text-scale-increase "in")
+	    ("]" text-scale-decrese "out"))
 
 #+end_src
 
@@ -165,10 +178,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (recentf-mode 1)
-  (setq recentf-max-menu-items 25)
-  (setq recentf-max-saved-items 25)
-  (global-set-key (kbd "C-x C-r") 'recentf-open-files)
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 25)
+(global-set-key (kbd "C-x C-r") 'recentf-open-files)
 
 #+end_src
 
@@ -176,21 +189,21 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package helpful
-    :commands (helpful-callable helpful-variable helpful-command helpful-key)
-    :init
-    (setq counsel-describe-function-function #'helpful-callable)
-    (setq counsel-describe-variable-function #'helpful-variable)
-    :bind
-    ([remap describe-function] . counsel-describe-function)
-    ([remap describe-variable] . counsel-describe-variable)
-    ([remap describe-command] . helpful-command)
-    ([remap describe-key] . helpful-key)
-    :general
-    (hoppla/leader-def "hf" '(describe-function :wk "describe function"))
-    (hoppla/leader-def "hc" '(describe-command :wk "describe command"))
-    (hoppla/leader-def "hv" '(describe-variable :wk "describe variable"))
-    (hoppla/leader-def "hk" '(describe-key :wk "describe key")))
+(use-package helpful
+  :commands (helpful-callable helpful-variable helpful-command helpful-key)
+  :init
+  (setq counsel-describe-function-function #'helpful-callable)
+  (setq counsel-describe-variable-function #'helpful-variable)
+  :bind
+  ([remap describe-function] . counsel-describe-function)
+  ([remap describe-variable] . counsel-describe-variable)
+  ([remap describe-command] . helpful-command)
+  ([remap describe-key] . helpful-key)
+  :general
+  (hoppla/leader-def "hf" '(describe-function :wk "describe function"))
+  (hoppla/leader-def "hc" '(describe-command :wk "describe command"))
+  (hoppla/leader-def "hv" '(describe-variable :wk "describe variable"))
+  (hoppla/leader-def "hk" '(describe-key :wk "describe key")))
 
 #+end_src
 
@@ -199,10 +212,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (tool-bar-mode -1)
-  (set-fringe-mode 5)
+(tool-bar-mode -1)
+(set-fringe-mode 5)
 
-  (use-package nerd-icons)
+(use-package nerd-icons)
 
 #+end_src
 
@@ -210,9 +223,27 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height hoppla/default-font-size)
-  (set-face-attribute 'fixed-pitch nil :font "JetBrainsMono Nerd Font" :height hoppla/default-font-size)
-  (set-face-attribute 'variable-pitch nil :font "Iosevka Nerd Font" :height hoppla/default-font-size)
+(defun hoppla/gui-fonts ()
+  (set-face-attribute 'default nil :font hoppla/default-font :height hoppla/default-font-size)
+  (set-face-attribute 'fixed-pitch nil :font hoppla/default-font :height hoppla/default-font-size)
+  (set-face-attribute 'variable-pitch nil :font hoppla/default-variable-font :height hoppla/default-font-size))
+
+(add-to-list 'initial-frame-alist `(font . ,hoppla/default-font))
+(add-to-list 'default-frame-alist `(font . ,hoppla/default-font))
+
+;; if gui do something in whatver type of emacs instance we are using
+(defun apply-if-gui (&rest action)
+  "Do specified ACTION if we're in a gui regardless of daemon or not."
+  (if (daemonp)
+      (add-hook 'after-make-frame-functions
+                (lambda (frame)
+                  (select-frame frame)
+                  (if (display-graphic-p frame)
+                      (apply action))))
+    (if (display-graphic-p)
+        (apply action))))
+
+(apply-if-gui 'hoppla/gui-fonts)
 
 #+end_src
 
@@ -220,12 +251,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (display-line-numbers-mode 1)
-  (dolist (mode '(org-mode-hook
-                  term-mode-hook
-                  shell-mode-hook
-                  eshell-mode-hook))
-    (add-hook mode (lambda () (display-line-numbers-mode 0))))
+(display-line-numbers-mode 1)
+(dolist (mode '(org-mode-hook
+                term-mode-hook
+                shell-mode-hook
+                eshell-mode-hook))
+  (add-hook mode (lambda () (display-line-numbers-mode 0))))
 
 #+end_src
 
@@ -233,15 +264,15 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (line-number-mode 1)
-  (column-number-mode 1)
+(line-number-mode 1)
+(column-number-mode 1)
 
-  (use-package doom-modeline
-    :after nerd-icons
-    :config
-    (setq doom-modeline-height 15)
-    :init
-    (doom-modeline-mode 1))
+(use-package doom-modeline
+  :after nerd-icons
+  :config
+  (setq doom-modeline-height 15)
+  :init
+  (doom-modeline-mode 1))
 
 #+end_src
 
@@ -251,12 +282,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package catppuccin-theme
-    :init
-    (setq catppuccin-flavor hoppla/catppuccin-flavor)
-    :config
-    (load-theme 'catppuccin :no-confirm)
-    (hoppla/leader-def "tt" '(counsel-load-theme :wk "choose theme")))
+(use-package catppuccin-theme
+  :init
+  (setq catppuccin-flavor hoppla/catppuccin-flavor)
+  :config
+  (load-theme 'catppuccin :no-confirm)
+  (hoppla/leader-def "tt" '(counsel-load-theme :wk "choose theme")))
 
 #+end_src
 
@@ -264,19 +295,19 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package dashboard
-    :after (projectile nerd-icons)
-    :init
-    (setq dashboard-center-content t)
-    (setq dashboard-display-icons-p t)
-    (setq dashboard-icon-type 'nerd-icons) 
-    (setq dashboard-set-heading-icons t)
-    (setq dashboard-set-file-icons t)
-    (setq dashboard-projects-switch-function 'counsel-projectile-switch-project)
-    :config
-    (dashboard-setup-startup-hook)
-    ;; display dashboard when staarting emacsclient
-    (setq initial-buffer-choice (lambda () (switch-to-buffer "*dashboard*"))))
+(use-package dashboard
+  :after (projectile nerd-icons)
+  :init
+  (setq dashboard-center-content t)
+  (setq dashboard-display-icons-p t)
+  (setq dashboard-icon-type 'nerd-icons) 
+  (setq dashboard-set-heading-icons t)
+  (setq dashboard-set-file-icons t)
+  (setq dashboard-projects-switch-function 'counsel-projectile-switch-project)
+  :config
+  (dashboard-setup-startup-hook)
+  ;; display dashboard when staarting emacsclient
+  (setq initial-buffer-choice (lambda () (switch-to-buffer "*dashboard*"))))
 
 #+end_src
 
@@ -287,12 +318,17 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 - [[https://orgmode.org/org.html][Manual]]
 
 #+begin_src elisp :tangle yes :results silent
-  
-  (use-package org
-    :mode ("\\.org$" . org-mode)
-    :init
-    (setq org-startup-indented t)
-    (setq org-confirm-babel-evaluate nil))
+
+(use-package org
+  :mode ("\\.org$" . org-mode)
+  :init
+  (setq org-startup-indented t)
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-edit-src-content-indentation 0)
+  (setq org-src-tab-acts-natively t)
+  (setq org-src-preserve-indentation t)
+  (add-to-list 'org-modules 'org-tempo t)
+  (add-to-list 'org-structure-template-alist '("ets" . "src elisp :tangle yes :results silent")))
 
 #+end_src
 
@@ -523,6 +559,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
   (use-package tree-sitter
     :after tree-sitter-langs
+    :hook (tree-sitter-mode . tree-sitter-hl-mode)
     :config
     (global-tree-sitter-mode))
   (use-package tree-sitter-langs)
@@ -612,7 +649,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp :tangle yes :results silent
 
   (use-package lsp-yaml
-    :
     :ensure lsp-mode
     :after lsp-mode
     :demand t)
