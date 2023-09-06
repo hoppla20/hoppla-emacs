@@ -8,6 +8,7 @@
 # tangled hoppla.org and defaults.org
 /etc/hoppla.el
 /etc/defaults.el
+/README.el
 
 # emacs state
 /var
