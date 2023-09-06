@@ -193,10 +193,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq counsel-describe-function-function #'helpful-callable)
   (setq counsel-describe-variable-function #'helpful-variable)
   :general
-  ([remap describe-function] counsel-describe-function)
-  ([remap describe-variable] counsel-describe-variable)
-  ([remap describe-command] helpful-command)
-  ([remap describe-key] helpful-key)
+  ([remap describe-function] 'counsel-describe-function)
+  ([remap describe-variable] 'counsel-describe-variable)
+  ([remap describe-command] 'helpful-command)
+  ([remap describe-key] 'helpful-key)
   (hoppla/leader-def "hf" '(describe-function :wk "describe function"))
   (hoppla/leader-def "hc" '(describe-command :wk "describe command"))
   (hoppla/leader-def "hv" '(describe-variable :wk "describe variable"))
@@ -335,8 +335,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 (use-package anzu
   :general
-  (:keymaps 'isearch-mode-map [remap isearc-query-replace] #'ansu-isearch-query-replace)
-  (:keymaps 'isearch-mode-map [remap isearc-query-replace-regexp] #'ansu-isearch-query-replace-regexp)
+  (:keymaps 'isearch-mode-map [remap isearc-query-replace] 'ansu-isearch-query-replace)
+  (:keymaps 'isearch-mode-map [remap isearc-query-replace-regexp] 'ansu-isearch-query-replace-regexp)
   :config
   (global-anzu-mode 1))
 (use-package evil-anzu
@@ -359,9 +359,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq org-confirm-babel-evaluate nil)
   (setq org-edit-src-content-indentation 0)
   (setq org-src-tab-acts-natively t)
-  (setq org-src-preserve-indentation t)
+  (setq org-src-preserve-indentation t))
+(use-package org-tempo
+  :ensure org
+  :after org
   :config
-  (require 'org-tempo)
   (add-to-list 'org-structure-template-alist '("ets" . "src elisp :tangle yes :results silent")))
 
 #+end_src
@@ -410,6 +412,35 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Essentials
 
+*** dired
+
+#+begin_src elisp :tangle yes :results silent
+
+(use-package dired
+  :ensure nil
+  :commands (dired dired-jump)
+  :init
+  (setq dired-listing-switches "-ah --group-directories-first")
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "h" 'dired-single-up-directory
+    "l" 'dired-single-buffer))
+(use-package dired-single
+  :commands (dired dired-jump))
+(use-package nerd-icons-dired
+  :hook (dired-mode . nerd-icons-dired-mode))
+(use-package dired-open
+  :commands (dired dired-jump)
+  :init
+  (setq dired-open-extensions '(("pdf" . "evince"))))
+(use-package dired-hide-dotfiles
+  :hook (dired-mode . dired-hide-dotfiles-mode)
+  :config
+  (evil-collection-define-key 'normal 'dired-mode-map
+    "H" 'dired-hide-dotfiles-mode))
+
+#+end_src
+
 *** magit
 
 - [[https://magit.vc/manual/magit/][Manual]]
@@ -432,7 +463,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :diminish projectile-mode
   :init
   (setq projectile-completion-system 'ivy)
-  (setq projectile-switch-project-action #'projectile-dired)
+  (setq projectile-switch-project-action 'projectile-find-file)
   (when (file-directory-p hoppla/workspace-dir)
     (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
   :config
@@ -487,7 +518,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     "Ps" '(persp-switch :wk "switch perspective")
     "Pi" '(persp-import :wk "import perspective from another frame")
     "Pr" '(persp-rename :wk "rename perspective")
-    "Pk" '(persp-rename :wk "kill perspective")
+    "Pk" '(persp-kill :wk "kill perspective")
     "P[" '(persp-prev :wk "previous perspective")
     "P]" '(persp-next :wk "next perspective")
     "Pm" '(persp-merge :wk "merge perspective")

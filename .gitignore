@@ -1,3 +1,6 @@
+# nix
+/result
+
 # emacs 'custom' file
 /etc/custom.el
 # user configuration
