@@ -34,14 +34,15 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
 #+begin_src elisp :tangle yes :results silent
 
 (require 'package)
-(unless hoppla/nix-managed-plugins
+(if hoppla/nix-managed-plugins
+    (setq package-archives '())
   (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
                            ("melpaStable" . "https://stable.melpa.org/packages/")
                            ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
                            ("elpa"        . "https://elpa.gnu.org/packages/")
                            ("elpaDevel"   . "https://elpa.gnu.org/devel/"))))
 (package-initialize)
-(unless (or hoppla/nix-managed-plugins package-archive-contents)
+(unless package-archive-contents
   (package-refresh-contents))
 
 (setq use-package-always-ensure t)
