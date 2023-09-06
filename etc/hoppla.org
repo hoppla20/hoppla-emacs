@@ -1,5 +1,6 @@
 #+STARTUP: show4levels
 #+PROPERTY: header-args:elisp :tangle yes :results silent
+#+OPTIONS: toc:4
 
 * Intro
 
@@ -26,7 +27,7 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
   (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
 (put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
 
-#+end_src
+                                #+end_src
 
 ** Package Management
 
@@ -51,7 +52,7 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
   (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 
-  #+end_src
+#+end_src
 
 ** Startup Performance
 
@@ -369,6 +370,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :after org
   :config
   (add-to-list 'org-structure-template-alist '("ets" . "src elisp")))
+(use-package toc-org
+  :hook ((org-mode . toc-org-mode)
+         (markdown-mode . toc-org-mode))
+  :general
+  (:states 'normal :keymaps 'markdown-mode-map "C-c C-o" 'toc-org-markdown-follow-thing-at-point))
 
 #+end_src
 
@@ -526,6 +532,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective")
 
     "Ps" '(persp-switch :wk "switch perspective")
+    "Po" '(persp-switch-last :wk "switch to last perspective")
     "Pi" '(persp-import :wk "import perspective from another frame")
     "Pr" '(persp-rename :wk "rename perspective")
     "Pk" '(persp-kill :wk "kill perspective")
@@ -536,13 +543,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     "PS" '(persp-state-save :wk "save all perspectives")
     "PL" '(persp-state-load :wk "load perspectives")))
 (use-package persp-projectile
-  :after (persp-mode projectile)
+  :after (perspective projectile)
   :config
   (general-def :states '(normal insert emacs)
     :keymaps 'persp-mode-map
     :prefix hoppla/leader
     :global-prefix hoppla/global-leader
-    :prefix-map 'hoppla/persp-projectile-leader-prefix-map
+    :prefix-map 'hoppla/persp-leader-prefix-map
     "Pp" '(projectile-persp-switch-project :wk "switch project (clean perspective)")))
 
 #+end_src
@@ -621,7 +628,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp
 
 (use-package rg
-  :general
+  :config
   (hoppla/leader-def "sr" '(rg-menu :wk "ripgrep")))
 
 #+end_src
