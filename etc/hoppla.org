@@ -521,8 +521,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp :tangle yes :results silent
 
-  (use-package tree-sitter)
-  (use-package tree-siteer-langs)
+  (use-package tree-sitter
+    :after tree-sitter-langs
+    :config
+    (global-tree-sitter-mode))
+  (use-package tree-sitter-langs)
 
 #+end_src
 
