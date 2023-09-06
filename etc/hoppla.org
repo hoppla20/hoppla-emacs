@@ -467,6 +467,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp
 
 (use-package projectile
+  :after rg
   :diminish projectile-mode
   :init
   (setq projectile-completion-system 'ivy)
@@ -486,7 +487,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     "pp" '(projectile-switch-project :wk "switch project")
     "po" '(projectile-switch-open-project :wk "switch open projects")
     "pa" '(projectile-add-project :wk "add project")
-    "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")))
+    "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")
+    "sr" '(projectile-ripgrep :wk "ripgrep (project)")
+    "sR" '(rg-menu :wk "ripgrep")
 (use-package counsel-projectile
   :after projectile
   :config
