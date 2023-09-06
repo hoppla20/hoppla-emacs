@@ -1,5 +1,14 @@
 * Default Configuration
 
+** Fonts
+
+#+begin_src elisp :tangle yes :results silent
+
+  (setq hoppla/default-font-size 100)
+  (setq hoppla/default-variable-font-size 100)
+
+#+end_src
+
 ** Keybindings
 
 #+begin_src elisp :tangle yes :results silent

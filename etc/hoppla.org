@@ -208,9 +208,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Fonts
 
-- Todos
-  - [ ] font configuration
-  - [ ] scaling using [[https://github.com/abo-abo/hydra][hydra]]
+#+begin_src elisp :tangle yes :results silent
+
+  (set-face-attribute 'default nil :font "JetBrainsMono Nerd Font" :height hoppla/default-font-size)
+  (set-face-attribute 'fixed-pitch nil :font "JetBrainsMono Nerd Font" :height hoppla/default-font-size)
+  (set-face-attribute 'variable-pitch nil :font "Iosevka Nerd Font" :height hoppla/default-font-size)
+
+#+end_src
 
 ** Line / Column Numbers
 
@@ -270,7 +274,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (setq dashboard-set-file-icons t)
     (setq dashboard-projects-switch-function 'counsel-projectile-switch-project)
     :config
-    (dashboard-setup-startup-hook))
+    (dashboard-setup-startup-hook)
+    ;; display dashboard when staarting emacsclient
+    (setq initial-buffer-choice (lambda () (switch-to-buffer "*dashboard*"))))
 
 #+end_src
 
@@ -511,6 +517,15 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Development
 
+*** Treesitter
+
+#+begin_src elisp :tangle yes :results silent
+
+  (use-package tree-sitter)
+  (use-package tree-siteer-langs)
+
+#+end_src
+
 *** LSP
 
 #+begin_src elisp :tangle yes :results silent
@@ -521,7 +536,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :commands (lsp lsp-deferred)
     :hook (lsp-mode . hoppla/lsp-mode-setup)
     :init
-    (setq lsp-keymap-prefix "SPC l")
+    (setq lsp-keymap-prefix "C-l")
     :config
     (lsp-enable-which-key-integration t))
 
@@ -586,6 +601,29 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (use-package nix-repl
     :ensure nix-mode
     :commands (nix-repl))
+
+#+end_src
+
+**** Yaml
+
+#+begin_src elisp :tangle yes :results silent
+
+  (use-package lsp-yaml
+    :
+    :ensure lsp-mode
+    :after lsp-mode
+    :demand t)
+
+#+end_src
+
+**** Ansible
+
+#+begin_src elisp :tangle yes :results silent
+
+  (use-package lsp-ansible
+    :ensure lsp-mode
+    :after lsp-mode
+    :demand t)
 
 #+end_src
 
