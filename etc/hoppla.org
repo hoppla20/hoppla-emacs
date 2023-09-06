@@ -339,7 +339,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (:keymaps 'isearch-mode-map [remap isearc-query-replace-regexp] #'ansu-isearch-query-replace-regexp)
   :config
   (global-anzu-mode 1))
-(use-package anzu-evil
+(use-package evil-anzu
   :after (anzu evil))
 
 #+end_src
@@ -501,7 +501,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :keymaps 'persp-mode-map
     :prefix hoppla/leader
     :global-prefix hoppla/global-leader
-    :prefix-map 'hoppla/persp-leader-prefix-map
+    :prefix-map 'hoppla/persp-projectile-leader-prefix-map
     "Pp" '(projectile-persp-switch-project :wk "switch project (clean perspective)")))
 
 #+end_src
