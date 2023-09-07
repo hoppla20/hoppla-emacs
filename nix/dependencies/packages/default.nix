@@ -6,6 +6,7 @@
 in {
   inherit
     (pkgs)
+    ccls
     tree-sitter
     ;
 }

@@ -1,6 +1,7 @@
 # -*- toc-org-max-depth: 4; -*-
 
 #+TITLE: Hoppla Emacs
+#+OPTIONS: todo:nil
 #+STARTUP: show4levels
 #+PROPERTY: header-args:elisp :tangle yes :results silent
 
@@ -31,6 +32,8 @@
     - [[#line--column-numbers][Line / Column Numbers]]
     - [[#improved-scrolling][Improved Scrolling]]
   - [[#windows][Windows]]
+    - [[#move-border][move-border]]
+    - [[#ace-window][ace-window]]
   - [[#modeline][Modeline]]
   - [[#theme][Theme]]
   - [[#dashboard][Dashboard]]
@@ -38,6 +41,9 @@
 - [[#plugins][Plugins]]
   - [[#org][Org]]
     - [[#appearance][Appearance]]
+      - [[#center-buffer][Center Buffer]]
+      - [[#auto-tangle][Auto-tangle]]
+      - [[#misc][Misc]]
   - [[#essentials][Essentials]]
     - [[#dired][dired]]
     - [[#magit][magit]]
@@ -47,14 +53,23 @@
     - [[#ivy-counsel-swiper][ivy, counsel, swiper]]
     - [[#company][company]]
     - [[#ripgrep][ripgrep]]
-  - [[#misc][Misc]]
+  - [[#misc-1][Misc]]
     - [[#no-littering][no-littering]]
     - [[#org-reveal-presentations][org-reveal (presentations)]]
   - [[#development][Development]]
     - [[#treesitter][Treesitter]]
     - [[#lsp][LSP]]
+      - [[#lsp-ui][lsp-ui]]
+      - [[#lsp-ivy][lsp-ivy]]
     - [[#languages][Languages]]
-    - [[#misc-1][Misc]]
+      - [[#c--c][C / C++]]
+      - [[#python][Python]]
+      - [[#nix][Nix]]
+      - [[#yaml][Yaml]]
+      - [[#ansible][Ansible]]
+    - [[#misc-2][Misc]]
+      - [[#comments][Comments]]
+      - [[#rainbow-delimiters][Rainbow Delimiters]]
 - [[#runtime][Runtime]]
   - [[#performance][Performance]]
 
@@ -82,9 +97,7 @@ cd ~/.config/emacs
 
 #+end_src
 
-*** TODO Install Dependencies (incomplete)
-
-- [ ] complete list of dependencies
+*** Install Dependencies (incomplete)
 
 #+begin_src bash
 
@@ -96,6 +109,8 @@ nix eval --json '.#dependencies.x86_64-linux' | jq -r 'to_entries[] | .key' \
     | xargs -i nix profile install 'nixpkgs#{}'
 
 #+end_src
+
+**** TODO complete list of dependencies                         :noexport:
 
 *** Build, Run, Install
 
@@ -116,9 +131,7 @@ nix profile install '.#hoppla-emacs'
 The variables and their default values can be found in [[./etc/defaults.org]] and can be overwritten with a
 [[./etc/user.el]] file.
 
-*** TODO home-manager example
-
-- [ ] TODO fully working example
+*** home-manager example
 
 #+begin_src nix :tangle no
 
@@ -154,6 +167,8 @@ in {
 }
 
 #+end_src
+
+**** TODO fully working example                                 :noexport:
 
 * Basic Configuration
 
@@ -451,7 +466,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Windows
 
-+ move-border
+*** move-border
+
+- [[https://github.com/ramnes/move-border][GitHub]]
+  - not on elpa, melpa, ...
 
 #+begin_src elisp
 
@@ -497,7 +515,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-+ [[https://github.com/abo-abo/ace-window][ace-window]]
+**** TODO extract into own package                              :noexport:
+
+*** ace-window
+
++ [[https://github.com/abo-abo/ace-window][GitHub]]
 
 #+begin_src elisp
 
@@ -976,6 +998,16 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+end_src
 
 *** Languages
+
+
+**** C / C++
+
+#+begin_src elisp
+
+(use-package ccls
+  :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
+
+#+end_src
 
 **** Python
 
