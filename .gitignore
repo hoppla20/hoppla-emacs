@@ -1,11 +1,9 @@
 # nix
 /result
 
-# emacs 'custom' file
-/etc/custom.el
-# user configuration
+# hoppla emacs user and tangled org configurations
 /etc/user.el
-# tangled hoppla.org and defaults.org
+/etc/custom.el
 /etc/hoppla.el
 /etc/defaults.el
 /README.el

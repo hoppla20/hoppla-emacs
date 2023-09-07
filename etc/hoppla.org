@@ -14,7 +14,7 @@
   - [[#configuration][Configuration]]
     - [[#home-manager-example][home-manager example]]
 - [[#basic-configuration][Basic Configuration]]
-  - [[#disable-customize][Disable Customize]]
+  - [[#custom-file][Custom file]]
   - [[#package-management][Package Management]]
   - [[#startup-performance][Startup Performance]]
   - [[#keybindings][Keybindings]]
@@ -26,6 +26,7 @@
   - [[#helpful][Helpful]]
   - [[#indents][Indents]]
   - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
+  - [[#reload-user-config][Reload user config]]
 - [[#ui][UI]]
   - [[#basics][Basics]]
     - [[#fonts][Fonts]]
@@ -49,6 +50,8 @@
     - [[#magit][magit]]
     - [[#projectile][projectile]]
     - [[#perspective][perspective]]
+    - [[#terminal][terminal]]
+      - [[#vterm][vterm]]
   - [[#completion--search][Completion & Search]]
     - [[#ivy-counsel-swiper][ivy, counsel, swiper]]
     - [[#company][company]]
@@ -133,7 +136,7 @@ The variables and their default values can be found in [[./etc/defaults.org]] an
 
 *** home-manager example
 
-#+begin_src nix :tangle no
+#+begin_src nix
 
 {
   pkgs,
@@ -172,24 +175,11 @@ in {
 
 * Basic Configuration
 
-** Disable Customize
-
-Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e89442e3809b8095199977053dd4210f/core/core-ui.el#L631C1-L639C103][Doom Emacs]]
+** Custom file
 
 #+begin_src elisp
 
-;; still set a custom-file path so that the init.el will not be modified if custom is
-;; invoked
 (setq custom-file (no-littering-expand-etc-file-name "custom.el"))
-(dolist (sym '(customize-option customize-browse customize-group customize-face
-                                customize-rogue customize-saved customize-apropos
-                                customize-changed customize-unsaved customize-variable
-                                customize-set-value customize-customized customize-set-variable
-                                customize-apropos-faces customize-save-variable
-                                customize-apropos-groups customize-apropos-options
-                                customize-changed-options customize-save-customized))
-  (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
-(put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
 
 #+end_src
 
@@ -416,6 +406,23 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
+** Reload user config
+
+#+begin_src elisp
+
+(defun hoppla/reload-config (&optional config)
+  (interactive)
+  ;; defaults to reloading this file, include the `config == "hoppla"` case
+  (cond ((not config) (load-file hoppla/hoppla-file))
+        ((config == "user") (load-file hoppla/user-file))
+        (t (load-file hoppla/hoppla-file)))
+  (hoppla/reload-theme))
+(defun hoppla/reload-user-config ()
+  (interactive)
+  (hoppla/reload-config "user"))
+
+#+end_src
+
 * UI
 ** Basics
 
@@ -532,9 +539,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :pretty-hydra
   ((:title "Windows" :color amaranth :quit-key "q")
    ("Actions"
-    (("x" ace-delete-window "delete")
+    (("x" delete-window "delete")
+     ("X" ace-delete-window "delete (ace)")
      ("m" ace-delete-other-windows "maximize")
-     ("s" ace-swap-window "swap")
+     ("S" ace-swap-window "swap")
      ("a" ace-select-window "select"))
     "Movement"
     (("h" evil-window-left "←")
@@ -549,10 +557,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
      ("n" balance-windows "balance")
      ("f" toggle-frame-fullscreen "toggle fullscreen"))
     "Split"
-    (("b" split-window-right "horizontally")
-     ("B" split-window-horizontally-instead "horizontally instead")
-     ("v" split-window-below "vertically")
-     ("V" split-window-vertically-instead "vertically instead"))
+    (("s" evil-window-split "horizontal")
+     ("v" evil-window-vsplit "vertical"))
     "Zoom"
     (("+" text-scale-increase "in")
      ("=" text-scale-increase "in")
@@ -589,7 +595,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq catppuccin-flavor hoppla/catppuccin-flavor)
   :config
   (load-theme 'catppuccin :no-confirm)
-  (hoppla/leader-def "tt" '(counsel-load-theme :wk "choose theme")))
+  (hoppla/leader-def "tt" '(counsel-load-theme :wk "choose theme"))
+  (defun hoppla/reload-theme ()
+    (interactive)
+    (setq catppuccin-flavor hoppla/catppuccin-flavor)
+    (load-theme 'catppuccin :no-confirm)))
 
 #+end_src
 
@@ -655,7 +665,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :ensure org
   :after org
   :config
-  (add-to-list 'org-structure-template-alist '("ets" . "src elisp")))
+  (add-to-list 'org-structure-template-alist '("el" . "src elisp")))
 (use-package toc-org
   :hook ((org-mode . toc-org-mode)
          (markdown-mode . toc-org-mode))
@@ -840,6 +850,19 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
+*** terminal
+
+**** vterm
+
+#+begin_src elisp
+
+(use-package vterm
+  :commands vterm
+  :config
+  (setq vterm-max-scrollback 10000))
+
+#+end_src
+
 ** Completion & Search
 
 *** ivy, counsel, swiper
@@ -999,13 +1022,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** Languages
 
-
 **** C / C++
 
 #+begin_src elisp
 
 (use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode) . (lambda () (require 'ccls) (lsp-deferred))))
+  :hook ((c-mode c++-mode objc-mode cuda-mode)
+         . (lambda () (require 'ccls) (lsp-deferred))))
 
 #+end_src
 
