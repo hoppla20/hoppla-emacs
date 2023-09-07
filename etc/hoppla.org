@@ -926,8 +926,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq avy-timeout-seconds 0.8)
   (setq avy-all-windows nil)
   :general
-  ("C-:" 'avy-goto-char)
-  ("C-'" 'avy-goto-char-2)
+  (:states '(normal visual) :keymaps 'global "C-:" 'avy-goto-char)
+  (:states '(normal visual) :keymaps 'global "C-'" 'avy-goto-char-2)
   (general-nmap "gl" 'avy-goto-line)
   (general-nmap "gw" 'avy-goto-word-1)
   (hoppla/leader-def "a" '(avy-goto-char-2 :wk "avy timer"))
