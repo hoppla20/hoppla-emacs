@@ -26,6 +26,7 @@
   - [[#helpful][Helpful]]
   - [[#indents][Indents]]
   - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
+  - [[#confirm-with-yp][Confirm with y/p]]
   - [[#reload-user-config][Reload user config]]
 - [[#ui][UI]]
   - [[#basics][Basics]]
@@ -432,6 +433,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp
 
 (auto-revert-mode 1)
+
+#+end_src
+
+** Confirm with y/p
+
+#+begin_src elisp
+
+(defalias 'yes-or-no-p 'y-or-n-p)
 
 #+end_src
 
@@ -890,12 +899,18 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq vterm-max-scrollback 10000))
 (use-package multi-vterm
   :general
-  (hoppla/leader-def "tt" '(multi-vterm-project :wk "toggle terminal"))
+  (hoppla/leader-def "tt" '(multi-vterm-dedicated-toggle :wk "toggle terminal"))
+  (hoppla/leader-def "pt" '(multi-vterm-project :wk "toggle terminal"))
+  :init
+  (setq multi-vterm-dedicated-window-height 30)
+  :config
   (major-mode-hydra-define vterm-mode
-    (:title "Vterm mode" :quit-key "q")
+    (:title "vterm mode" :quit-key "q")
     ("Switch"
-     (("p" multi-vterm-prev "previous")
-      ("n" multi-vterm-next "next")))))
+     (("+" multi-vterm "create new")
+      ("r" multi-vterm-rename-buffer "rename buffer")
+      ("p" multi-vterm-prev "previous" :color amaranth)
+      ("n" multi-vterm-next "next" :color amaranth)))))
 
 #+end_src
 
