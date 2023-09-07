@@ -4,7 +4,7 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-  (setq hoppla/default-font "JetBrainsMono Nerd Font-12")
+(setq hoppla/default-font "JetBrainsMono Nerd Font-12")
 
 #+end_src
 
@@ -12,8 +12,8 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-  (setq hoppla/leader "SPC"
-        hoppla/global-leader "M-SPC")
+(setq hoppla/leader "SPC"
+      hoppla/global-leader "M-SPC")
 
 #+end_src
 
@@ -23,7 +23,7 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-   (setq hoppla/nix-managed-plugins t)
+(setq hoppla/nix-managed-plugins t)
 
 #+end_src
 
@@ -32,7 +32,7 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-   (setq hoppla/catppuccin-flavor 'macchiato)
+(setq hoppla/catppuccin-flavor 'macchiato)
 
 #+end_src
 
@@ -42,8 +42,8 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-  (setq hoppla/workspace-dir "~/Workspace")
-  (setq hoppla/extra-workspace-dirs '(("/etc/nixos" . 0)))
+(setq hoppla/workspace-dir "~/Workspace")
+(setq hoppla/extra-workspace-dirs '(("/etc/nixos" . 0) ("~/.config/emacs" . 0)))
 
 #+end_src
 
@@ -51,6 +51,6 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-  (setq hoppla/persp-states-dir (no-littering-expand-var-file-name "persp-states"))
+(setq hoppla/persp-states-dir (no-littering-expand-var-file-name "persp-states"))
 
 #+end_src

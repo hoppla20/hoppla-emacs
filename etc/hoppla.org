@@ -34,6 +34,7 @@
     - [[#fonts][Fonts]]
     - [[#line--column-numbers][Line / Column Numbers]]
     - [[#improved-scrolling][Improved Scrolling]]
+  - [[#windows][Windows]]
   - [[#modeline][Modeline]]
   - [[#theme][Theme]]
   - [[#dashboard][Dashboard]]
@@ -41,9 +42,6 @@
 - [[#plugins][Plugins]]
   - [[#org][Org]]
     - [[#appearance][Appearance]]
-      - [[#center-buffer][Center Buffer]]
-      - [[#auto-tangle][Auto-tangle]]
-      - [[#misc][Misc]]
   - [[#essentials][Essentials]]
     - [[#dired][dired]]
     - [[#magit][magit]]
@@ -53,22 +51,14 @@
     - [[#ivy-counsel-swiper][ivy, counsel, swiper]]
     - [[#company][company]]
     - [[#ripgrep][ripgrep]]
-  - [[#misc-1][Misc]]
+  - [[#misc][Misc]]
     - [[#no-littering][no-littering]]
     - [[#org-reveal-presentations][org-reveal (presentations)]]
   - [[#development][Development]]
     - [[#treesitter][Treesitter]]
     - [[#lsp][LSP]]
-      - [[#lsp-ui][lsp-ui]]
-      - [[#lsp-ivy][lsp-ivy]]
     - [[#languages][Languages]]
-      - [[#python][Python]]
-      - [[#nix][Nix]]
-      - [[#yaml][Yaml]]
-      - [[#ansible][Ansible]]
-    - [[#misc-2][Misc]]
-      - [[#comments][Comments]]
-      - [[#rainbow-delimiters][Rainbow Delimiters]]
+    - [[#misc-1][Misc]]
 - [[#runtime][Runtime]]
   - [[#performance][Performance]]
 
@@ -190,7 +180,7 @@ Shamelessly copied from [[https://github.com/doomemacs/doomemacs/blob/35865ef5e8
   (put sym 'disabled "Hoppla-emacs doesn't support `customize', configure Emacs from $EMACSCONFDIR/default.org instead"))
 (put 'customize-themes 'disabled "Use `load-theme' in $EMACSCONFDIR/default.org instead")
 
-                                #+end_src
+#+end_src
 
 ** Package Management
 
@@ -314,7 +304,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :prefix-map 'hoppla/leader-prefix-map)
   (hoppla/leader-def "t" '(:ignore t :wk "toggles"))
   (hoppla/leader-def "b" '(:ignore t :wk "buffers"))
-  (hoppla/leader-def "w" '(:ignore t :wk "windows"))
   (hoppla/leader-def "f" '(:ignore t :wk "files"))
   (hoppla/leader-def "g" '(:ignore t :wk "git"))
   (hoppla/leader-def "h" '(:ignore t :wk "help"))
@@ -335,8 +324,34 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp
 
-(use-package hydra
-  :defer t)
+(use-package dash
+  :config
+  (global-dash-fontify-mode))
+(use-package s)
+(use-package hydra)
+(use-package major-mode-hydra
+  :defer nil
+  :after (hydra dash s)
+  :general
+  (hoppla/leader-def "m" '(major-mode-hydra :wk "major"))
+  :config
+  (major-mode-hydra-define emacs-lisp-mode
+                           (:title "Elisp Mode" :quit-key "ESC")
+                           ("Eval"
+                            (("b" eval-buffer "buffer")
+                             ("e" eval-defun "defun")
+                             ("r" eval-region "region"))
+                            "REPL"
+                            (("I" ielm "ielm"))
+                            "Test"
+                            (("t" ert "prompt")
+                             ("T" (ert t) "all")
+                             ("F" (ert :failed) "failed"))
+                            "Doc"
+                            (("d" describe-foo-at-point "thing-at-point")
+                             ("f" describe-function "function")
+                             ("v" describe-variable "variable")
+                             ("i" info-lookup-symbol "info lookup")))))
 
 #+end_src
 
@@ -435,6 +450,96 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (setq mouse-whell-progressive-speed nil)
 (setq mouse-wheel-follow-mouse t)
 (setq scroll-step 1)
+
+#+end_src
+
+** Windows
+
++ move-border
+
+#+begin_src elisp
+
+(defun hoppla/xor (b1 b2)
+  (or (and b1 b2)
+      (and (not b1) (not b2))))
+
+(defun hoppla/move-border-left-or-right (arg dir)
+  "General function covering move-border-left and move-border-right. If DIR is
+     t, then move left, otherwise move right."
+  (interactive)
+  (if (null arg) (setq arg 1))
+  (let ((left-edge (nth 0 (window-edges))))
+    (if (hoppla/xor (= left-edge 0) dir)
+        (shrink-window arg t)
+      (enlarge-window arg t))))
+
+(defun hoppla/move-border-up-or-down (arg dir)
+  "General function covering move-border-up and move-border-down. If DIR is
+     t, then move up, otherwise move down."
+  (interactive)
+  (if (null arg) (setq arg 1))
+  (let ((top-edge (nth 1 (window-edges))))
+    (if (hoppla/xor (= top-edge 0) dir)
+        (shrink-window arg nil)
+      (enlarge-window arg nil))))
+
+(defun hoppla/move-border-left (arg)
+  (interactive "P")
+  (hoppla/move-border-left-or-right arg t))
+
+(defun hoppla/move-border-right (arg)
+  (interactive "P")
+  (hoppla/move-border-left-or-right arg nil))
+
+(defun hoppla/move-border-up (arg)
+  (interactive "P")
+  (hoppla/move-border-up-or-down arg t))
+
+(defun hoppla/move-border-down (arg)
+  (interactive "P")
+  (hoppla/move-border-up-or-down arg nil))
+
+#+end_src
+
++ [[https://github.com/abo-abo/ace-window][ace-window]]
+
+#+begin_src elisp
+
+(use-package ace-window
+  :after evil
+  :general
+  (hoppla/leader-def "w" '(ace-window-hydra/body :wk "windows"))
+  :init
+  (defun hoppla/zoom-reset () (interactive) (text-scale-adjust 0) (message nil))
+  :pretty-hydra
+  ((:title "Windows" :color amaranth :quit-key "q")
+   ("Actions"
+    (("x" ace-delete-window "delete")
+     ("m" ace-delete-other-windows "maximize")
+     ("s" ace-swap-window "swap")
+     ("a" ace-select-window "select"))
+    "Movement"
+    (("h" evil-window-left "←")
+     ("j" evil-window-down "↓")
+     ("k" evil-window-up "↑")
+     ("l" evil-window-right "→"))
+    "Resize"
+    (("H" hoppla/move-border-left "←")
+     ("J" hoppla/move-border-down "↓")
+     ("K" hoppla/move-border-up "↑")
+     ("L" hoppla/move-border-right "→")
+     ("n" balance-windows "balance")
+     ("f" toggle-frame-fullscreen "toggle fullscreen"))
+    "Split"
+    (("b" split-window-right "horizontally")
+     ("B" split-window-horizontally-instead "horizontally instead")
+     ("v" split-window-below "vertically")
+     ("V" split-window-vertically-instead "vertically instead"))
+    "Zoom"
+    (("+" text-scale-increase "in")
+     ("=" text-scale-increase "in")
+     ("-" text-scale-decrease "out")
+     ("0" hoppla/zoom-reset "reset")))))
 
 #+end_src
 
