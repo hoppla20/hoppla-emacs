@@ -448,13 +448,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp
 
-(defun hoppla/reload-config (&optional config)
+(defun hoppla/reload-config (&optional cfg)
   (interactive)
-  ;; defaults to reloading this file, include the `config == "hoppla"` case
-  (cond ((not config) (load-file hoppla/hoppla-file))
-        ((config == "user") (load-file hoppla/user-file))
-        (t (load-file hoppla/hoppla-file)))
-  (hoppla/reload-theme))
+  (let ((cfg (or cfg "all")))
+    (cond ((string= cfg "user") (load-file hoppla/user-file))
+          (t (load-file (expand-file-name "init.el" user-emacs-directory))))
+    (hoppla/reload-theme)))
 (defun hoppla/reload-user-config ()
   (interactive)
   (hoppla/reload-config "user"))
@@ -943,6 +942,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package counsel
   :general
   (hoppla/leader-def "bs" '(counsel-switch-buffer :wk "switch buffer"))
+  (hoppla/leader-def "SPC" '(counsel-fzf :wk "find file"))
   (hoppla/leader-def "ff" '(counsel-fzf :wk "find file"))
   (general-nmap "C-p" '(counsel-fzf :wk "find file"))
   :config
