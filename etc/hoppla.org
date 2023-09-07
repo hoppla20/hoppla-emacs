@@ -136,6 +136,32 @@ The variables and their default values can be found in [[./etc/defaults.org]] an
 
 *** home-manager example
 
+flake.nix
+
+#+begin_src nix
+
+{
+  description = "Example";
+
+  inputs = {
+    nixpkgs = "github:NixOS/nixpkgs/nixos-23.05";
+    nixpkgs-unstable = "github:NixOS/nixpkgs/nixos-unstable";
+
+    hoppla-emacs = {
+      url = "github:hoppla20/hoppla-emacs";
+      inputs.nixpkgs.follow = "unstable";
+    };
+    emacs-libvterm = {
+      url = "github:akermu/emacs-libvterm";
+      flake = false;
+    };
+  };
+}
+
+#+end_src
+
+home-manager-config.nix
+
 #+begin_src nix
 
 {
@@ -167,6 +193,9 @@ in {
     (setq hoppla/extra-workspace-dirs '(("/etc/nixos" . 0)
                                         ("~/.config/emacs" . 0)))
   '';
+
+  programs.bash.initExtra = l.readFile "${inputs.emacs-libvterm}/etc/emacs-vterm-bash.sh";
+  programs.zsh.initExtra = l.readFile "${inputs.emacs-libvterm}/etc/emacs-vterm-zsh.sh";
 }
 
 #+end_src
@@ -337,7 +366,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (hoppla/leader-def "m" '(major-mode-hydra :wk "major"))
   :config
   (major-mode-hydra-define emacs-lisp-mode
-                           (:title "Elisp Mode" :quit-key "ESC")
+                           (:title "elisp mode" :quit-key "q")
                            ("Eval"
                             (("b" eval-buffer "buffer")
                              ("e" eval-defun "defun")
@@ -595,7 +624,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq catppuccin-flavor hoppla/catppuccin-flavor)
   :config
   (load-theme 'catppuccin :no-confirm)
-  (hoppla/leader-def "tt" '(counsel-load-theme :wk "choose theme"))
   (defun hoppla/reload-theme ()
     (interactive)
     (setq catppuccin-flavor hoppla/catppuccin-flavor)
@@ -860,6 +888,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :commands vterm
   :config
   (setq vterm-max-scrollback 10000))
+(use-package multi-vterm
+  :general
+  (hoppla/leader-def "tt" '(multi-vterm-project :wk "toggle terminal"))
+  (major-mode-hydra-define vterm-mode
+    (:title "Vterm mode" :quit-key "q")
+    ("Switch"
+     (("p" multi-vterm-prev "previous")
+      ("n" multi-vterm-next "next")))))
 
 #+end_src
 
