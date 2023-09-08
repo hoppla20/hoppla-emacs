@@ -14,7 +14,7 @@
   - [[#configuration][Configuration]]
     - [[#home-manager-example][home-manager example]]
 - [[#basic-configuration][Basic Configuration]]
-  - [[#custom-file][Custom file]]
+  - [[#reload-user-config][Reload user config]]
   - [[#package-management][Package Management]]
   - [[#startup-performance][Startup Performance]]
   - [[#keybindings][Keybindings]]
@@ -27,7 +27,7 @@
   - [[#indents][Indents]]
   - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
   - [[#confirm-with-yp][Confirm with y/p]]
-  - [[#reload-user-config][Reload user config]]
+  - [[#savehist-mode][savehist-mode]]
 - [[#ui][UI]]
   - [[#basics][Basics]]
     - [[#fonts][Fonts]]
@@ -57,13 +57,13 @@
       - [[#avy][avy]]
     - [[#snippets][Snippets]]
       - [[#yasnippet][yasnippet]]
-    - [[#savehist-mode][savehist-mode]]
   - [[#completion--search][Completion & Search]]
     - [[#native][native]]
     - [[#icons][icons]]
     - [[#orderless][orderless]]
     - [[#mct][mct]]
-    - [[#vetico][vetico]]
+    - [[#vertico][vertico]]
+    - [[#marginalia-consult][marginalia, consult]]
     - [[#cape][cape]]
     - [[#corfu][corfu]]
     - [[#ripgrep][ripgrep]]
@@ -215,11 +215,19 @@ in {
 
 * Basic Configuration
 
-** Custom file
+** Reload user config
 
 #+begin_src elisp
 
-(setq custom-file (no-littering-expand-etc-file-name "custom.el"))
+(defun hoppla/reload-config (&optional cfg)
+  (interactive)
+  (let ((cfg (or cfg "all")))
+    (cond ((string= cfg "user") (load-file hoppla/user-file))
+          (t (load-file (expand-file-name "init.el" user-emacs-directory))))
+    (hoppla/reload-theme)))
+(defun hoppla/reload-user-config ()
+  (interactive)
+  (hoppla/reload-config "user"))
 
 #+end_src
 
@@ -348,7 +356,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (hoppla/leader-def "f" '(:ignore t :wk "files"))
   (hoppla/leader-def "g" '(:ignore t :wk "git"))
   (hoppla/leader-def "h" '(:ignore t :wk "help"))
-  (hoppla/leader-def "d" '(:ignore t :wk "desktops"))
   (hoppla/leader-def "p" '(:ignore t :wk "projects"))
   (hoppla/leader-def "P" '(:ignore t :wk "perspectives"))
   (hoppla/leader-def "d" '(:ignore t :wk "directories"))
@@ -451,19 +458,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Reload user config
+** savehist-mode
 
 #+begin_src elisp
 
-(defun hoppla/reload-config (&optional cfg)
-  (interactive)
-  (let ((cfg (or cfg "all")))
-    (cond ((string= cfg "user") (load-file hoppla/user-file))
-          (t (load-file (expand-file-name "init.el" user-emacs-directory))))
-    (hoppla/reload-theme)))
-(defun hoppla/reload-user-config ()
-  (interactive)
-  (hoppla/reload-config "user"))
+(savehist-mode 1)
 
 #+end_src
 
@@ -775,7 +774,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     "h" 'dired-single-up-directory
     "l" 'dired-single-buffer)
   :general
-  (hoppla/leader-def "dd" 'dired)
   (hoppla/leader-def "dj" 'dired-jump))
 (use-package dired-single
   :commands (dired dired-jump))
@@ -818,8 +816,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq projectile-switch-project-action 'projectile-find-file)
   (when (file-directory-p hoppla/workspace-dir)
     (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
+  :hook (after-init . (lambda () (projectile-mode 1)))
   :config
-  (projectile-mode 1)
   (general-def :states '(normal insert emacs)
     :keymaps 'projectile-mode-map
     :prefix hoppla/leader
@@ -940,14 +938,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-*** savehist-mode
-
-#+begin_src elisp
-
-(savehist-mode 1)
-
-#+end_src
-
 ** Completion & Search
 
 *** native
@@ -967,8 +957,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 ;; Enable recursive minibuffers
 (setq enable-recursive-minibuffers t)
 
-;; TAB cycle if there are only few candidates
-(setq completion-cycle-threshold 5)
+;; TAB cycle
+(setq completion-cycle-threshold nil)
 
 ;; Enable indentation+completion using TAB
 (setq tab-always-indent 'complete)
@@ -1012,18 +1002,31 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** mct
 
++ Toggle Completions using ~C-l~
++ [[https://elpa.gnu.org/packages/mct.html#h:bb445062-2e39-4082-a868-2123bfb793cc][Selecting candidates]]
+  + cycle using ~TAB~
+  + complete and exit using ~RET~
+  + edit completion ~M-e~
+  + choose completion number ~M-g M-g~
+  + when choosing multiple allowed (~[CRM]~)
+    + pick candidate ~M-RET~
+    + pick candidate and exit ~RET~
+
 #+begin_src elisp
 
 (use-package mct
+  :init
+  (setq mct-minimum-input 1)
+  (setq mct-persist-dynamic-completion t)
+  (setq mct-completion-window-size (cons #'mct--frame-height-fraction 1))
   :config
-  (mct-minibuffer-mode 1)
-  (setq mct-completion-window-size (cons #'mct--frame-height-fraction 1)))
+  (mct-minibuffer-mode 1))
 
 #+end_src
 
-*** vetico
+*** vertico
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
 ;; (use-package vertico
 ;;   :init
@@ -1045,6 +1048,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 ;;   :general
 ;;   (:keymaps 'global "M-R" 'vertico-repeat)
 ;;   :hook (minibuffer-setup . vertico-repeat-save))
+
+#+end_src
+
+*** marginalia, consult
+
+#+begin_src elisp
 (use-package marginalia
   :after vertico
   :general
@@ -1052,6 +1061,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :init
   (marginalia-mode))
 (use-package consult
+  :after mct
+  :hook (completion-list-mode . consult-preview-at-point-mode)
   :general
   (:states '(normal visual insert emacs)
            "C-/" 'consult-line)
@@ -1068,13 +1079,25 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq xref-show-xrefs-function 'consult-xref)
   (setq xref-show-definitions-function 'consult-xref)
   (setq consult-narrow-key "<")
-  (setq consult-widen-key ">")
   :config
   ;; projectile
   (setq consult-project-function (lambda (_) (projectile-project-root)))
   ;; perspective (switch with prefix b)
   (consult-customize consult--source-buffer :hidden t :default nil)
-  (add-to-list 'consult-buffer-sources persp-consult-source))
+  (add-to-list 'consult-buffer-sources persp-consult-source)
+  ;; live ui
+  (consult-customize consult-theme :preview-key
+                     '("M-."
+                       :debounce 0.5 "<up>" "<down>"
+                       :debounce 1 any)))
+(use-package consult-dir
+  :general
+  ("C-x C-d" 'consult-dir)
+  (hoppla/leader-def "dd" '(consult-dir "consult-dir"))
+  (:keymaps 'minibuffer-local-completion-map
+            "C-x C-d" 'consult-dir
+            "C-x C-j" 'consult-dir-jump-file))
+
 #+end_src
 
 *** cape
@@ -1102,26 +1125,29 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq corfu-auto-delay 0.2)
   (setq corfu-auto-prefix 1)
   (setq corfu-quit-at-boundary 'separator)
-  (setq corfu-preselect nil)
-  (global-corfu-mode)
+  (setq corfu-preselect 'prompt)
 
-  (defun corfu-enable-in-minibuffer ()
-    "Enable Corfu in the minibuffer if `completion-at-point' is bound."
-    (when (where-is-internal #'completion-at-point (list (current-local-map)))
-      ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
-      (setq-local corfu-echo-delay nil ;; Disable automatic echo and popup
-		              corfu-popupinfo-delay nil)
+  (defun corfu-enable-always-in-minibuffer ()
+    "Enable Corfu in the minibuffer if Vertico/Mct are not active."
+    (unless (or (bound-and-true-p mct--active)
+	              (bound-and-true-p vertico--input)
+	              (eq (current-local-map) read-passwd-map))
+      (setq-local corfu-echo-delay nil)
       (corfu-mode 1)))
-  :hook (minibuffer-setup . corfu-enable-in-minibuffer)
+  :hook ((prog-mode . corfu-mode)
+         (text-mode . corfu-mode)
+         (shell-mode . corfu-mode)
+         (eshell-mode . corfu-mode)
+         (minibuffer-setup . corfu-enable-always-in-minibuffer))
   :general
   (:keymaps 'corfu-map
             "M-SPC" 'corfu-insert-separator
             "RET" 'nil
-            "S-TAB" 'corfu-prev
-            "<backtab>" 'corfu-prev
+            "S-TAB" 'corfu-previous
+            "<backtab>" 'corfu-previous
             "TAB" 'corfu-next
             "<tab>" 'corfu-next
-            "S-<return>" 'corfu-insert))
+            "C-<return>" 'corfu-insert))
 (use-package corfu-history
   :ensure corfu
   :after corfu
@@ -1252,14 +1278,21 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp
 
-(defun hoppla/lsp-mode-setup ())
-
 (use-package lsp-mode
   :commands (lsp lsp-deferred)
-  :hook (lsp-mode . hoppla/lsp-mode-setup)
+  :after orderless
+  :hook ((lsp-mode . hoppla/lsp-mode-setup)
+         (lsp-completion-mode . hoppla/lsp-mode-setup-completion))
   :init
   (setq read-process-output-max (* 1 1024 1024))
   (setq lsp-keymap-prefix "C-l")
+  (setq lsp-completion-provider :none) ;; corfu
+
+
+  (defun hoppla/lsp-mode-setup ())
+  (defun hoppla/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(orderless-fast)))
   :config
   (lsp-enable-which-key-integration t))
 

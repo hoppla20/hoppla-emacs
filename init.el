@@ -6,6 +6,8 @@
 (defvar hoppla/hoppla-file (no-littering-expand-etc-file-name "hoppla.org"))
 (defvar hoppla/user-file (no-littering-expand-etc-file-name "user.el"))
 (defvar hoppla/custom-file (no-littering-expand-etc-file-name "custom.el"))
+(setq custom-file hoppla/custom-file)
+
 
 ;; load default configuration
 (org-babel-load-file hoppla/defaults-file)
