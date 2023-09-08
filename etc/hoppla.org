@@ -57,8 +57,10 @@
       - [[#avy][avy]]
     - [[#snippets][Snippets]]
       - [[#yasnippet][yasnippet]]
+    - [[#savehist-mode][savehist-mode]]
   - [[#completion--search][Completion & Search]]
-    - [[#ivy-counsel-swiper][ivy, counsel, swiper]]
+    - [[#orderless][orderless]]
+    - [[#vetico][vetico]]
     - [[#company][company]]
     - [[#ripgrep][ripgrep]]
   - [[#misc-1][Misc]]
@@ -68,7 +70,6 @@
     - [[#treesitter][Treesitter]]
     - [[#lsp][LSP]]
       - [[#lsp-ui][lsp-ui]]
-      - [[#lsp-ivy][lsp-ivy]]
     - [[#languages][Languages]]
       - [[#c--c][C / C++]]
       - [[#python][Python]]
@@ -408,12 +409,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 (use-package helpful
   :commands (helpful-callable helpful-variable helpful-command helpful-key)
-  :init
-  (setq counsel-describe-function-function #'helpful-callable)
-  (setq counsel-describe-variable-function #'helpful-variable)
   :general
-  ([remap describe-function] 'counsel-describe-function)
-  ([remap describe-variable] 'counsel-describe-variable)
+  ([remap describe-function] 'helpful-function)
+  ([remap describe-variable] 'helpful-variable)
   ([remap describe-command] 'helpful-command)
   ([remap describe-key] 'helpful-key)
   (hoppla/leader-def "hf" '(describe-function :wk "describe function"))
@@ -813,7 +811,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :after rg
   :diminish projectile-mode
   :init
-  (setq projectile-completion-system 'ivy)
   (setq projectile-switch-project-action 'projectile-find-file)
   (when (file-directory-p hoppla/workspace-dir)
     (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
@@ -824,19 +821,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :prefix hoppla/leader
     :global-prefix hoppla/global-leader
     :prefix-map 'hoppla/projectile-leader-prefix-map
-    "ff" '(projectile-find-file :wk "search for project file")
-    "fd" '(projectile-find-dir :wk "search for project directory")
-    "fr" '(projectile-recentf :wk "find recent project file")
     "pp" '(projectile-switch-project :wk "switch project")
     "po" '(projectile-switch-open-project :wk "switch open projects")
     "pa" '(projectile-add-project :wk "add project")
-    "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")
-    "sr" '(projectile-ripgrep :wk "ripgrep (project)")
-    "sR" '(rg-menu :wk "ripgrep")))
-(use-package counsel-projectile
-  :after projectile
-  :config
-  (counsel-projectile-mode 1))
+    "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")))
 
 #+end_src
 
@@ -847,7 +835,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package perspective
   :defer nil
   :hook (kill-emacs . persp-state-save)
-  :after counsel
   :init
   (unless (file-exists-p hoppla/persp-states-dir)
     (make-directory hoppla/persp-states-dir))
@@ -862,8 +849,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     :prefix-map 'hoppla/persp-leader-prefix-map
     "bi" '(persp-ibuffer :wk "ibuffer")
     "bI" '(ibuffer :wk "ibuffer")
-    "bs" '(persp-counsel-switch-buffer :wk "switch buffer")
-    "bS" '(counsel-switch-buffer :wk "switch buffer (all perspectives)")
     "br" '(persp-remove-buffer :wk "remove buffer")
     "bA" '(persp-add-buffer :wk "add buffer to global perspective")
     "bG" '(persp-add-buffer-to-frame-global :wk "add buffer to global perspective")
@@ -906,7 +891,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (hoppla/leader-def "tt" '(multi-vterm-dedicated-toggle :wk "toggle terminal"))
   (hoppla/leader-def "pt" '(multi-vterm-project :wk "toggle terminal"))
   :init
-  (setq multi-vterm-dedicated-window-height 30)
+  (setq multi-vterm-dedicated-window-height-percent 30)
   :config
   (major-mode-hydra-define vterm-mode
     (:title "vterm mode" :quit-key "q")
@@ -951,55 +936,110 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Completion & Search
-
-*** ivy, counsel, swiper
-
-+ GitHub
-  + [[https://github.com/abo-abo/swiper][ivy, counsel, swiper]]
-  + [[https://github.com/Yevgnen/ivy-rich][ivy-rich]]
-  + [[https://github.com/radian-software/prescient.el][ivy-prescient]]
-
-+ Tips:
-  + Use ~C-c C-o~ to open search results in a new buffer
+*** savehist-mode
 
 #+begin_src elisp
 
-(use-package ivy
-  :defer nil
-  :diminish ivy-mode
-  :general
-  (general-nmap "C-/" 'swiper)
-  (:keymaps 'ivy-minibuffer-map "TAB" 'ivy-alt-done)
-  (:keymaps 'ivy-switch-buffer-map "C-d" 'ivy-switch-buffer-kill)
-  (:keymaps 'ivy-reverse-i-search-map "C-d" 'ivy-reverse-i-search-kill)
-  (:keymaps '(ivy-minibuffer-map ivy-switch-buffer-map ivy-reverse-i-search-map) "C-k" 'ivy-previous-line)
-  (:keymaps '(ivy-minibuffer-map ivy-switch-buffer-map ivy-reverse-i-search-map) "C-j" 'ivy-next-line)
-  :config
-  (ivy-mode 1))
-(use-package counsel
-  :general
-  (hoppla/leader-def "bs" '(counsel-switch-buffer :wk "switch buffer"))
-  (hoppla/leader-def "SPC" '(counsel-fzf :wk "find file"))
-  (hoppla/leader-def "ff" '(counsel-fzf :wk "find file"))
-  (general-nmap "C-p" '(counsel-fzf :wk "find file"))
-  :config
-  (counsel-mode 1))
-(use-package ivy-rich
-  :after (ivy counsel)
-  :config
-  (ivy-rich-mode 1))
-(use-package ivy-prescient
-  :after (ivy counsel)
-  :init
-  (setq ivy-prescient-enable-filtering nil)
-  :config
-  (prescient-persist-mode 1)
-  (ivy-prescient-mode 1))
-(use-package ivy-hydra
-  :defer t
-  :after hydra)
+(savehist-mode 1)
 
+#+end_src
+
+** Completion & Search
+
+*** orderless
+
+#+begin_src elisp
+
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-defaults nil)
+  (setq completion-category-overrides '((file (styles basic partial-completion)))))
+
+#+end_src
+
+*** vetico
+
+#+begin_src elisp
+
+(use-package vertico
+  :init
+  (vertico-mode 1)
+  :config
+  (keymap-set vertico-map "?" 'minibuffer-completion-help)
+  (keymap-set vertico-map "M-RET" 'minibuffer-force-complete-and-exit)
+  (keymap-set vertico-map "M-TAB" 'minibuffer-complete))
+(use-package vertico-quick
+  :ensure vertico
+  :after vertico
+  :general
+  (:keymaps 'vertico-map
+            "M-q" 'vertico-quick-insert
+            "C-q" 'vertico-quick-exit))
+(use-package vertico-repeat
+  :ensure vertico
+  :after vertico
+  :general
+  (:keymaps 'global "M-R" 'vertico-repeat)
+  :hook (minibuffer-setup . vertico-repeat-save))
+(use-package marginalia
+  :after vertico
+  :general
+  (:keymaps 'minibuffer-local-map "M-A" 'marginalia-cycle)
+  :init
+  (marginalia-mode))
+(use-package consult
+  :general
+  (hoppla/leader-def
+    "M-x" '(consult-mode-command :wk "consult")
+    "bs" '(consult-buffer :wk "switch buffer")
+    "bO" '(consult-buffer-other-window :wk "open buffer in other window")
+    "fr" '(consult-recent-file :wk "find recent file")
+    "ff" '(consult-find :wk "find file")
+    "fd" '(consult-fd :wk "find directory")
+    "sr" '(consult-ripgrep :wk "ripgrep"))
+  (general-nmap "C-p" '(consult-find :wk "find file"))
+  :init
+  (setq xref-show-xrefs-function 'consult-xref)
+  (setq xref-show-definitions-function 'consult-xref)
+  (setq consult-narrow-key "<")
+  (setq consult-widen-key ">")
+  :config
+  ;; projectile
+  (setq consult-project-function (lambda (_) (projectile-project-root)))
+  ;; perspective (switch with prefix b)
+  (consult-customize consult--source-buffer :hidden t :default nil)
+  (add-to-list 'consult-buffer-sources persp-consult-source))
+(use-package mct
+  :config
+  (mct-mode 1)
+  (mct-minibuffer-mode 1)
+  (mct-region-mode 1))
+(use-package emacs
+  :init
+  ;; Add prompt indicator to `completing-read-multiple'.
+  ;; We display [CRM<separator>], e.g., [CRM,] if the separator is a comma.
+  (defun crm-indicator (args)
+    (cons (format "[CRM%s] %s"
+                  (replace-regexp-in-string
+                   "\\`\\[.*?]\\*\\|\\[.*?]\\*\\'" ""
+                   crm-separator)
+                  (car args))
+          (cdr args)))
+  (advice-add #'completing-read-multiple :filter-args #'crm-indicator)
+
+  ;; Do not allow the cursor in the minibuffer prompt
+  (setq minibuffer-prompt-properties
+        '(read-only t cursor-intangible t face minibuffer-prompt))
+  (add-hook 'minibuffer-setup-hook #'cursor-intangible-mode)
+
+  ;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+  ;; Vertico commands are hidden in normal buffers.
+  ;; (setq read-extended-command-predicate
+  ;;       #'command-completion-default-include-p)
+
+  ;; Enable recursive minibuffers
+  (setq enable-recursive-minibuffers t))
 #+end_src
 
 *** company
@@ -1035,7 +1075,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 (use-package rg
   :config
-  (hoppla/leader-def "sr" '(rg-menu :wk "ripgrep")))
+  (hoppla/leader-def "sR" '(rg-menu :wk "ripgrep")))
 
 #+end_src
 
@@ -1105,15 +1145,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :hook (lsp-mode . lsp-ui-mode)
   :init
   (setq lsp-ui-doc-position 'bottom))
-
-#+end_src
-
-**** lsp-ivy
-
-#+begin_src elisp
-
-(use-package lsp-ivy
-  :after lsp-mode)
 
 #+end_src
 
