@@ -1004,20 +1004,28 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** company
 
++ [[https://company-mode.github.io/manual/][Manual]
+
 #+begin_src elisp
 
 (use-package company
-  :after lsp-mode
-  :hook (lsp-mode . company-mode)
-  :general
-  (:keymaps 'company-active-map "<tab>" 'company-complete-selection)
-  (:keymaps 'lsp-mode-map "<tab>" 'company-indent-or-complete-common)
+  :hook ((prog-mode text-mode) . company-mode)
+  :config
+  (general-def :keymaps 'company-active-map "<tab>" 'company-complete-selection)
+  (general-def :keymaps 'lsp-mode-map "<tab>" 'company-indent-or-complete-common)
   :init
   (setq company-minimum-prefix-length 1)
-  (setq company-idle-delay 0.0))
+  (setq company-idle-delay 0.2))
 (use-package company-box
   :after company
   :hook (company-mode . company-box-mode))
+(use-package cape
+  :init
+  (add-to-list 'completion-at-point-functions 'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions 'cape-file)
+  (add-to-list 'completion-at-point-functions 'cape-elisp-block)
+  (add-to-list 'completion-at-point-functions 'cape-tex)
+  (add-to-list 'completion-at-point-functions 'cape-dict))
 
 #+end_src
 
