@@ -57,6 +57,7 @@
       - [[#avy][avy]]
     - [[#snippets][Snippets]]
       - [[#yasnippet][yasnippet]]
+    - [[#relative-buffer-names][relative-buffer-names]]
   - [[#completion--search][Completion & Search]]
     - [[#native][native]]
     - [[#icons][icons]]
@@ -935,6 +936,24 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :hook (prog-mode . yas-minor-mode))
 (use-package yasnippet-snippets
   :after yasnippet)
+
+#+end_src
+
+*** relative-buffer-names
+
+#+begin_src elisp
+
+(use-package buffer-name-relative
+  :init
+  (setq buffer-name-relative-prefix '("<" . ">/"))
+  (setq buffer-name-relative-prefix-map
+        '(("~/Workspace" . "WORKSPACE")))
+  (setq buffer-name-relative-root-functions
+        '(buffer-name-relative-root-path-from-projectile
+          buffer-name-relative-root-path-from-vc))
+  (setq buffer-name-relative-abbrev-limit 16)
+  :config
+  (buffer-name-relative-mode))
 
 #+end_src
 
