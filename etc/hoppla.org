@@ -1012,41 +1012,41 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     + pick candidate ~M-RET~
     + pick candidate and exit ~RET~
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
-(use-package mct
-  :init
-  (setq mct-persist-dynamic-completion t)
-  (setq mct-completion-window-size (cons #'mct--frame-height-fraction 1))
-  :config
-  (mct-minibuffer-mode 1))
+;; (use-package mct
+;;   :init
+;;   (setq mct-persist-dynamic-completion t)
+;;   (setq mct-completion-window-size (cons #'mct--frame-height-fraction 1))
+;;   :config
+;;   (mct-minibuffer-mode 1))
 
 #+end_src
 
 *** vertico
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 
-;; (use-package vertico
-;;   :init
-;;   (vertico-mode 1)
-;;   :config
-;;   (keymap-set vertico-map "?" 'minibuffer-completion-help)
-;;   (keymap-set vertico-map "M-RET" 'minibuffer-force-complete-and-exit)
-;;   (keymap-set vertico-map "M-TAB" 'minibuffer-complete))
-;; (use-package vertico-quick
-;;   :ensure vertico
-;;   :after vertico
-;;   :general
-;;   (:keymaps 'vertico-map
-;;             "M-q" 'vertico-quick-insert
-;;             "C-q" 'vertico-quick-exit))
-;; (use-package vertico-repeat
-;;   :ensure vertico
-;;   :after vertico
-;;   :general
-;;   (:keymaps 'global "M-R" 'vertico-repeat)
-;;   :hook (minibuffer-setup . vertico-repeat-save))
+(use-package vertico
+  :init
+  (vertico-mode 1)
+  :config
+  (keymap-set vertico-map "?" 'minibuffer-completion-help)
+  (keymap-set vertico-map "M-RET" 'minibuffer-force-complete-and-exit)
+  (keymap-set vertico-map "M-TAB" 'minibuffer-complete))
+(use-package vertico-quick
+  :ensure vertico
+  :after vertico
+  :general
+  (:keymaps 'vertico-map
+            "M-q" 'vertico-quick-insert
+            "C-q" 'vertico-quick-exit))
+(use-package vertico-repeat
+  :ensure vertico
+  :after vertico
+  :general
+  (:keymaps 'global "M-R" 'vertico-repeat)
+  :hook (minibuffer-setup . vertico-repeat-save))
 
 #+end_src
 
@@ -1060,8 +1060,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :init
   (marginalia-mode))
 (use-package consult
-  :after mct
-  :hook (completion-list-mode . consult-preview-at-point-mode)
   :general
   (:states '(normal visual insert emacs)
            "C-/" 'consult-line)
@@ -1128,7 +1126,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq corfu-quit-at-boundary 'separator)
   (setq corfu-preselect 'prompt)
 
-  (defun corfu-enable-always-in-minibuffer ()
+  (defun corfu-enable-except ()
     "Enable Corfu in the minibuffer if Vertico/Mct are not active."
     (unless (or (bound-and-true-p mct--active)
 	              (bound-and-true-p vertico--input)
@@ -1139,7 +1137,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
          (text-mode . corfu-mode)
          (shell-mode . corfu-mode)
          (eshell-mode . corfu-mode)
-         (minibuffer-setup . corfu-enable-always-in-minibuffer))
+         (minibuffer-setup . corfu-enable-except))
   :general
   (:keymaps 'corfu-map
             "M-SPC" 'corfu-insert-separator
