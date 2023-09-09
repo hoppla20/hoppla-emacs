@@ -735,8 +735,10 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
   (centaur-tabs-headline-match)
   :general
   (:states '(normal visual insert emacs)
-           "M-<" 'centaur-tabs-backward
-           "M->" 'centaur-tabs-forward)
+           "M-," 'centaur-tabs-backward
+           "M-." 'centaur-tabs-forward
+           "M-<" 'centaur-tabs-move-current-tab-to-left
+           "M->" 'centaur-tabs-move-current-tab-to-right)
   (general-nmap "g t" 'centaur-tabs-forward)
   (general-nmap "g T" 'centaur-tabs-backward))
 
@@ -1421,7 +1423,7 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
   :after orderless
   :hook ((lsp-mode . hoppla/lsp-mode-setup)
          (lsp-completion-mode . hoppla/lsp-mode-setup-completion))
-  :config
+  :init
   (setq read-process-output-max (* 1 1024 1024))
   (setq lsp-keymap-prefix "C-l")
   (setq lsp-completion-provider :none) ;; corfu
