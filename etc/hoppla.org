@@ -1016,7 +1016,6 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 (use-package mct
   :init
-  (setq mct-minimum-input 1)
   (setq mct-persist-dynamic-completion t)
   (setq mct-completion-window-size (cons #'mct--frame-height-fraction 1))
   :config
@@ -1093,10 +1092,12 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package consult-dir
   :general
   ("C-x C-d" 'consult-dir)
-  (hoppla/leader-def "dd" '(consult-dir "consult-dir"))
+  (hoppla/leader-def "dd" '(consult-dir :wk "dired"))
   (:keymaps 'minibuffer-local-completion-map
             "C-x C-d" 'consult-dir
-            "C-x C-j" 'consult-dir-jump-file))
+            "C-x C-j" 'consult-dir-jump-file)
+  :init
+  (setq consult-dir-default-command 'consult-dir-dired))
 
 #+end_src
 
