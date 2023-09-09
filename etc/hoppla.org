@@ -11,8 +11,8 @@
     - [[#clone-the-repository][Clone the Repository]]
     - [[#install-dependencies-incomplete][Install Dependencies (incomplete)]]
     - [[#build-run-install][Build, Run, Install]]
+      - [[#home-manager-example][home-manager example]]
   - [[#configuration][Configuration]]
-    - [[#home-manager-example][home-manager example]]
 - [[#basic-configuration][Basic Configuration]]
   - [[#reload-user-config][Reload user config]]
   - [[#package-management][Package Management]]
@@ -28,6 +28,7 @@
   - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
   - [[#confirm-with-yp][Confirm with y/p]]
   - [[#savehist-mode][savehist-mode]]
+- [[#system-configuration][System Configuration]]
 - [[#ui][UI]]
   - [[#basics][Basics]]
     - [[#fonts][Fonts]]
@@ -144,13 +145,7 @@ nix profile install '.#hoppla-emacs'
 
 #+end_src
     
-** Configuration
-
-~hoppla-emacs~ exposes some variables that can be overwritten in order to change the appearance or behaviour.
-The variables and their default values can be found in [[./etc/defaults.org]] and can be overwritten with a
-[[./etc/user.el]] file.
-
-*** home-manager example
+**** home-manager example
 
 flake.nix
 
@@ -216,7 +211,13 @@ in {
 
 #+end_src
 
-**** TODO fully working example                                 :noexport:
+***** TODO fully working example                               :noexport:
+
+** Configuration
+
+~hoppla-emacs~ exposes some variables that can be overwritten in order to change the appearance or behaviour.
+The variables and their default values can be found in [[./etc/defaults.org]] and can be overwritten with a
+[[./etc/user.el]] file.
 
 * Basic Configuration
 
@@ -471,12 +472,22 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
+* System Configuration
+
+#+begin_src elisp
+
+(require 'subr-x)
+(setq hoppla/is-termux
+      (string-suffix-p "Android" (string-trim (shell-command-to-string "uname -a"))))
+
+#+end_src
+
 * UI
 ** Basics
 
 #+begin_src elisp
 
-(when (window-system)
+(unless hoppla/is-termux
   (tool-bar-mode -1))
 
 (set-fringe-mode 10)
@@ -678,7 +689,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :init
   (setq centaur-tabs-enable-key-bindings t)
   (setq centaur-tabs-style "bar")
-  (setq centaur-tabs-set-bar 'left)
+  (setq centaur-tabs-set-bar 'nil)
   (setq centaur-tabs-set-icons t)
   (setq centaur-tabs-cycle-scope 'tabs)
   (defun centaur-tabs-buffer-groups ()
