@@ -33,11 +33,13 @@
     - [[#fonts][Fonts]]
     - [[#line--column-numbers][Line / Column Numbers]]
     - [[#improved-scrolling][Improved Scrolling]]
+  - [[#theme][Theme]]
   - [[#windows][Windows]]
     - [[#move-border][move-border]]
+    - [[#zoom][zoom]]
     - [[#ace-window][ace-window]]
   - [[#modeline][Modeline]]
-  - [[#theme][Theme]]
+  - [[#tabs][Tabs]]
   - [[#dashboard][Dashboard]]
   - [[#search][Search]]
 - [[#plugins][Plugins]]
@@ -48,6 +50,7 @@
       - [[#misc][Misc]]
   - [[#essentials][Essentials]]
     - [[#dired][dired]]
+    - [[#ranger][ranger]]
     - [[#magit][magit]]
     - [[#projectile][projectile]]
     - [[#perspective][perspective]]
@@ -58,6 +61,7 @@
     - [[#snippets][Snippets]]
       - [[#yasnippet][yasnippet]]
     - [[#relative-buffer-names][relative-buffer-names]]
+    - [[#aggressive-indent][aggressive-indent]]
   - [[#completion--search][Completion & Search]]
     - [[#native][native]]
     - [[#icons][icons]]
@@ -515,6 +519,24 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
+** Theme
+
++ [[https://github.com/catppuccin/emacs][GitHub]]
+
+#+begin_src elisp
+
+(use-package catppuccin-theme
+  :init
+  (setq catppuccin-flavor hoppla/catppuccin-flavor)
+  :config
+  (load-theme 'catppuccin :no-confirm)
+  (defun hoppla/reload-theme ()
+    (interactive)
+    (setq catppuccin-flavor hoppla/catppuccin-flavor)
+    (load-theme 'catppuccin :no-confirm)))
+
+#+end_src
+
 ** Windows
 
 *** move-border
@@ -568,6 +590,21 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 **** TODO extract into own package                              :noexport:
 
+*** zoom
+
+#+begin_src elisp
+
+(use-package zoom
+  :demand
+  :init
+  (setq zoom-size '(0.618 . 0.618))
+  :general
+  (:states '(normal visual insert emacs) :keymaps 'global "C-x +" 'zoom)
+  :config
+  (zoom-mode 1))
+
+#+end_src
+
 *** ace-window
 
 + [[https://github.com/abo-abo/ace-window][GitHub]]
@@ -575,7 +612,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp
 
 (use-package ace-window
-  :after evil
+  :after (evil zoom)
   :general
   (hoppla/leader-def "w" '(ace-window-hydra/body :wk "windows"))
   :init
@@ -605,8 +642,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
      ("v" evil-window-vsplit "vertical"))
     "Zoom"
     (("+" text-scale-increase "in")
-     ("=" text-scale-increase "in")
      ("-" text-scale-decrease "out")
+     ("=" evil-auto-balance-windows "balance")
+     ("z" zoom "zoom")
      ("0" hoppla/zoom-reset "reset")))))
 
 #+end_src
@@ -628,21 +666,68 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Theme
+** Tabs
 
-+ [[https://github.com/catppuccin/emacs][GitHub]]
++ default keybindings prefixed with ~C-c t~
 
 #+begin_src elisp
 
-(use-package catppuccin-theme
+(use-package centaur-tabs
+  :demand
+  :hook ((vterm-mode . centaur-tabs-local-mode))
   :init
-  (setq catppuccin-flavor hoppla/catppuccin-flavor)
+  (setq centaur-tabs-enable-key-bindings t)
+  (setq centaur-tabs-style "bar")
+  (setq centaur-tabs-set-bar 'left)
+  (setq centaur-tabs-set-icons t)
+  (setq centaur-tabs-cycle-scope 'tabs)
+  (defun centaur-tabs-buffer-groups ()
+    "`centaur-tabs-buffer-groups' control buffers' group rules.
+
+Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+All buffer name start with * will group to \"Emacs\".
+Other buffer group by `centaur-tabs-get-group-name' with project name."
+    (list
+     (cond
+      ((or (string-equal "*" (substring (buffer-name) 0 1))
+           (memq major-mode '(magit-process-mode
+                              magit-status-mode
+                              magit-diff-mode
+                              magit-log-mode
+                              magit-file-mode
+                              magit-blob-mode
+                              magit-blame-mode
+                              )))
+       "Emacs")
+      ((derived-mode-p 'prog-mode)
+       "Editing")
+      ((derived-mode-p 'dired-mode)
+       "Dired")
+      ((memq major-mode '(helpful-mode
+                          help-mode))
+       "Help")
+      ((memq major-mode '(org-mode
+                          org-agenda-clockreport-mode
+                          org-src-mode
+                          org-agenda-mode
+                          org-beamer-mode
+                          org-indent-mode
+                          org-bullets-mode
+                          org-cdlatex-mode
+                          org-agenda-log-mode
+                          diary-mode))
+       "OrgMode")
+      (t
+       (centaur-tabs-get-group-name (current-buffer))))))
   :config
-  (load-theme 'catppuccin :no-confirm)
-  (defun hoppla/reload-theme ()
-    (interactive)
-    (setq catppuccin-flavor hoppla/catppuccin-flavor)
-    (load-theme 'catppuccin :no-confirm)))
+  (centaur-tabs-mode 1)
+  (centaur-tabs-headline-match)
+  :general
+  (:states '(normal visual insert emacs)
+           "M-<" 'centaur-tabs-backward
+           "M->" 'centaur-tabs-forward)
+  (general-nmap "g t" 'centaur-tabs-forward)
+  (general-nmap "g T" 'centaur-tabs-backward))
 
 #+end_src
 
@@ -789,6 +874,25 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :config
   (evil-collection-define-key 'normal 'dired-mode-map
     "H" 'dired-hide-dotfiles-mode))
+
+#+end_src
+
+*** ranger
+
++ usefull keybindings
+  + ~zP~ toggle deer/ranger mode
+  + ~zp~ toggle file details in deer mode
+  + ~zh~ show hidden files
+  + ~z-~, ~z+~ show less/more parent folders
+  + ~i~ toggle file preview window
+
+#+begin_src elisp
+
+(use-package ranger
+  :init
+  (setq ranger-cleanup-eagerly t)
+  :config
+  (ranger-override-dired-mode 1))
 
 #+end_src
 
@@ -954,6 +1058,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq buffer-name-relative-abbrev-limit 16)
   :config
   (buffer-name-relative-mode))
+
+#+end_src
+
+*** aggressive-indent
+
+#+begin_src elisp
+
+(use-package aggressive-indent)
 
 #+end_src
 

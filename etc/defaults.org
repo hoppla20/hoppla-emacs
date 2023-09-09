@@ -4,7 +4,7 @@
 
 #+begin_src elisp :tangle yes :results silent
 
-(setq hoppla/default-font "JetBrainsMono Nerd Font-12")
+(setq hoppla/default-font "JetBrainsMono Nerd Font-11")
 
 #+end_src
 
