@@ -612,7 +612,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :init
   (setq zoom-size '(0.618 . 0.618))
   :general
-  (:states '(normal visual insert emacs) :keymaps 'global "C-x +" 'zoom)
+  (general-nmap :keymaps 'global "C-w z" 'zoom-mode)
   :config
   (zoom-mode 1))
 
@@ -657,7 +657,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (("+" text-scale-increase "in")
      ("-" text-scale-decrease "out")
      ("=" evil-auto-balance-windows "balance")
-     ("z" zoom "zoom")
+     ("z" zoom-mode "toggle zoom mode")
      ("0" hoppla/zoom-reset "reset")))))
 
 #+end_src
