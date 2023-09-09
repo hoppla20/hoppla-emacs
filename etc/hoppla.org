@@ -846,9 +846,6 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 
 #+begin_src elisp
 
-(use-package org-sticky-header
-  :after org
-  :hook (org-mode . org-sticky-header-mode))
 (use-package org-superstar
   :after org
   :hook (org-mode . org-superstar-mode))
