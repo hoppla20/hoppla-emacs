@@ -488,9 +488,11 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp
 
 (unless hoppla/is-termux
-  (tool-bar-mode -1))
+  (tool-bar-mode -1)
+  (set-fringe-mode 10))
 
-(set-fringe-mode 10)
+(menu-bar-mode -1)
+(setq visible-bell t)
 
 #+end_src
 
