@@ -48,6 +48,7 @@
   - [[#search][Search]]
 - [[#plugins][Plugins]]
   - [[#org][Org]]
+      - [[#extend-org-hydra-further-or-just-use-evil-org][extend org-hydra further or just use evil-org?]]
     - [[#appearance][Appearance]]
       - [[#center-buffer][Center Buffer]]
       - [[#auto-tangle][Auto-tangle]]
@@ -411,7 +412,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (use-package s)
 (use-package hydra)
 (use-package major-mode-hydra
-  :defer nil
+  :demand t
   :after (hydra dash s)
   :general
   (hoppla/leader-def "m" '(major-mode-hydra :wk "major"))
@@ -670,7 +671,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :init
   (defun hoppla/zoom-reset () (interactive) (text-scale-adjust 0) (message nil))
   :pretty-hydra
-  ((:title "Windows" :color amaranth :quit-key "q")
+  ((:title "windows" :color amaranth :quit-key "q")
    ("Actions"
     (("x" delete-window "delete")
      ("X" ace-delete-window "delete (ace)")
@@ -832,17 +833,44 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 ** Org
 
 + [[https://orgmode.org/org.html][Manual]]
++ [[https://github.com/Somelauw/evil-org-mode][evil-org]]
+
 
 #+begin_src elisp
 
-(use-package org
+(use-package org-mode
+  :ensure org
   :mode ("\\.org$" . org-mode)
   :init
   (setq org-startup-indented t)
   (setq org-confirm-babel-evaluate nil)
   (setq org-edit-src-content-indentation 0)
   (setq org-src-tab-acts-natively t)
-  (setq org-src-preserve-indentation t))
+  (setq org-src-preserve-indentation t)
+  :mode-hydra
+  ((:title "org" :color amaranth :quit-key "q")
+   ("Movement"
+    (("j" org-next-visible-heading "next heading")
+     ("k" org-previous-visible-heading "previous heading")
+     ("u" outline-up-heading "move up the heading tree")
+     ("C-j" org-forward-heading-same-level "next heading (same level)")
+     ("C-k" org-backward-heading-same-level "previous heading (same level)")))))
+(use-package evil-org
+  :after org
+  :hook (org-mode . evil-org-mode)
+  :config
+  (evil-org-set-key-theme '(textobjects
+                            insert
+                            navigation
+                            return
+                            additional
+                            shift
+                            todo
+                            heading
+                            calendar)))
+(use-package evil-org-agenda
+  :ensure evil-org
+  :after evil-org)
 (use-package org-tempo
   :ensure org
   :after org
@@ -855,6 +883,8 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
   (:states 'normal :keymaps 'markdown-mode-map "C-c C-o" 'toc-org-markdown-follow-thing-at-point))
 
 #+end_src
+
+**** TODO extend org-hydra further or just use evil-org?
 
 *** Appearance
 
@@ -991,7 +1021,7 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 #+begin_src elisp
 
 (use-package perspective
-  :defer nil
+  :demand t
   :hook (kill-emacs . persp-state-save)
   :init
   (unless (file-exists-p hoppla/persp-states-dir)
@@ -1152,7 +1182,7 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 #+begin_src elisp
 
 (use-package nerd-icons-completion
-  :defer nil
+  :demand t
   :after marginalia
   :hook (marginalia-mode . nerd-icons-completion-marginalia-setup)
   :config
@@ -1336,7 +1366,7 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
   (corfu-history-mode 1)
   (add-to-list 'savehist-additional-variables 'corfu-history))
 (use-package corfu-popupinfo
-  :defer nil
+  :demand t
   :ensure corfu
   :after corfu
   :config
@@ -1422,12 +1452,12 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 #+begin_src elisp
 
 (use-package pdf-tools
-  :defer 0.5
-  :general
+  :config
+  (pdf-loader-install)
   (general-nmap :keymaps 'pdf-view-mode-map
     "h" 'pdf-view-previous-page-command
     "l" 'pdf-view-next-page-command
-    "k" (lambda () (interactive) (pdf-view-prvious-line-or-next-page 5))
+    "k" (lambda () (interactive) (pdf-view-previous-line-or-previous-page 5))
     "j" (lambda () (interactive) (pdf-view-next-line-or-next-page 5))
     "C-o" 'pdf-history-backward
     "C-i" 'pdf-history-forward
