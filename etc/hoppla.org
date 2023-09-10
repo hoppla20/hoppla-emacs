@@ -28,7 +28,7 @@
   - [[#helpful][Helpful]]
   - [[#indents][Indents]]
   - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
-  - [[#confirm-with-yp][Confirm with y/p]]
+  - [[#always-confirm-with-yn][Always confirm with y/n]]
   - [[#savehist-mode][savehist-mode]]
 - [[#system-configuration][System Configuration]]
 - [[#ui][UI]]
@@ -77,6 +77,7 @@
     - [[#corfu][corfu]]
     - [[#ripgrep][ripgrep]]
   - [[#misc-1][Misc]]
+    - [[#pdf-tools][pdf-tools]]
     - [[#no-littering][no-littering]]
     - [[#org-reveal-presentations][org-reveal (presentations)]]
   - [[#development][Development]]
@@ -121,6 +122,8 @@ cd ~/.config/emacs
 #+end_src
 
 *** Install Dependencies (incomplete)
+
++ generally available packages like ~git~ are not included
 
 #+begin_src bash
 
@@ -480,7 +483,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Confirm with y/p
+** Always confirm with y/n
 
 #+begin_src elisp
 
@@ -1413,6 +1416,29 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 #+end_src
 
 ** Misc
+
+*** pdf-tools
+
+#+begin_src elisp
+
+(use-package pdf-tools
+  :defer 0.5
+  :general
+  (general-nmap :keymaps 'pdf-view-mode-map
+    "h" 'pdf-view-previous-page-command
+    "l" 'pdf-view-next-page-command
+    "k" (lambda () (interactive) (pdf-view-prvious-line-or-next-page 5))
+    "j" (lambda () (interactive) (pdf-view-next-line-or-next-page 5))
+    "C-o" 'pdf-history-backward
+    "C-i" 'pdf-history-forward
+    "m" 'pdf-view-position-to-register
+    "'" 'pdf-view-jump-to-register
+    "/" 'pdf-occur
+    "o" 'pdf-outline
+    "f" 'pdf-links-action-perform
+    "b" 'pdf-view-midnight-minor-mode))
+
+#+end_src
 
 *** no-littering
 
