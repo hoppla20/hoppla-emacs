@@ -17,17 +17,6 @@
 
 #+end_src
 
-** Plugins
-
-- whether packages are installed and managed by nix
-
-#+begin_src elisp :tangle yes :results silent
-
-(setq hoppla/nix-managed-plugins t)
-
-#+end_src
-
-
 ** Theme
 
 #+begin_src elisp :tangle yes :results silent

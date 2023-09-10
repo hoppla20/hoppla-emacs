@@ -19,6 +19,7 @@ in rec {
           (epkgs)
           use-package
           no-littering # is configured before use-package is available
+          ivy # TODO somewhere there is a dependency for ivy-hydra, which requires ivy
           ;
       };
   };

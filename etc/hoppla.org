@@ -91,6 +91,7 @@
       - [[#nix][Nix]]
       - [[#yaml][Yaml]]
       - [[#ansible][Ansible]]
+      - [[#markdown][Markdown]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -101,8 +102,7 @@
 * Intro
 
 + emacs part inspired by [[https://github.com/daviwil/emacs-from-scratch][Emacs From Scratch]].
-  + theoretically compatible with non-nix emacs
-  + some packages might not be available in the normal elpa, melpa, ... archives
+  + usage outside of nixpkgs is not supported
 + nix part uses [[https://github.com/nix-community/emacs-overlay][emacs-overlay]] to offer
   + a nix package that also includes all emacs packages used by this configuration
   + uses emacs-overlay's =emacsWithPackagesFromUsePackage= to automatically
@@ -267,21 +267,6 @@ TERM=xterm-direct emacsclient -nw --create-window
 
 #+begin_src elisp
 
-(require 'package)
-(if hoppla/nix-managed-plugins
-    (setq package-archives '())
-  (setq package-archives '(("melpa"       . "https://melpa.org/packages/")
-                           ("melpaStable" . "https://stable.melpa.org/packages/")
-                           ("nongnu"      . "https://elpa.nongnu.org/nongnu/")
-                           ("elpa"        . "https://elpa.gnu.org/packages/")
-                           ("elpaDevel"   . "https://elpa.gnu.org/devel/"))))
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
-
-(setq use-package-always-ensure t)
-(unless (or hoppla/nix-managed-plugins (package-installed-p 'use-package))
-  (package-install 'use-package))
 (eval-when-compile (require 'use-package))
 
 #+end_src
@@ -782,7 +767,14 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
            "M-<" 'centaur-tabs-move-current-tab-to-left
            "M->" 'centaur-tabs-move-current-tab-to-right)
   (general-nmap "g t" 'centaur-tabs-forward)
-  (general-nmap "g T" 'centaur-tabs-backward))
+  (general-nmap "g T" 'centaur-tabs-backward)
+  (hoppla/leader-def "T" '(centaur-tabs-hydra/body :wk "tabs"))
+  :pretty-hydra
+  ((:title "tabs" :color amaranth :quit-key "q")
+   ("Groups"
+    (("[" centaur-tabs-backward-group "previous group")
+     ("]" centaur-tabs-forward-group "next group")
+     ("g" centaur-tabs-switch-group "switch group" :color blue)))))
 
 #+end_src
 
@@ -835,6 +827,28 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 + [[https://orgmode.org/org.html][Manual]]
 + [[https://github.com/Somelauw/evil-org-mode][evil-org]]
 
+Some useful evil-org keybindings
+
+| Key   | Command              | Description                                                                 |
+|-------+----------------------+-----------------------------------------------------------------------------|
+| =RET= | evil-org-ret         | depending on context create new item/table element/row or insert a new line |
+| =gh=  | org-element-up       | go to parent element                                                        |
+| =gl=  | org-down-element     | go to sub element                                                           |
+| =gj=  | org-forward-element  | go to next element (same level)                                             |
+| =gk=  | org-backward-element | go to previous element (same level)                                         |
+
+org-meta keys
+
+| Key   | Command            | On Headings       | On tables         |
+|-------+--------------------+-------------------+-------------------|
+| =M-h= | org-metaleft       | promote heading   | move column left  |
+| =M-l= | org-metaright      | demote heading    | move column right |
+| =M-k= | org-metaup         | move subtree up   | move column up    |
+| =M-j= | org-metadown       | move subtree down | move column down  |
+| =M-H= | org-shiftmetaleft  | promote subtree   | delete column     |
+| =M-L= | org-shiftmetaright | demote subtree    | insert column     |
+| =M-K= | org-shiftmetaup    | move heading up   | delete row        |
+| =M-J= | org-shiftmetadown  | move heading down | insert row        |
 
 #+begin_src elisp
 
@@ -866,7 +880,6 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
                             additional
                             shift
                             todo
-                            heading
                             calendar)))
 (use-package evil-org-agenda
   :ensure evil-org
@@ -960,7 +973,7 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 
 *** ranger
 
-+ usefull keybindings
++ useful keybindings
   + ~zP~ toggle deer/ranger mode
   + ~zp~ toggle file details in deer mode
   + ~zh~ show hidden files
@@ -1624,6 +1637,26 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
   :ensure lsp-mode
   :after lsp-mode
   :demand t)
+
+#+end_src
+
+**** Markdown
+
+#+begin_src elisp
+
+(use-package markdown-mode
+  :mode (("\\.md\\'" . markdown-mode)
+         ("README\\.md\\'" . gfm-mode))
+  :init
+  (setq markdown-command "multimarkdown"))
+(use-package evil-markdown
+  :after (evil markdown-mode)
+  :hook (markdown-mode . evil-markdown-mode)
+  :config
+  (evil-markdown-set-key-theme '(textobjects
+                                 navigation
+                                 insert
+                                 additional)))
 
 #+end_src
 
