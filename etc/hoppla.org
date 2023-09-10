@@ -13,6 +13,8 @@
     - [[#build-run-install][Build, Run, Install]]
       - [[#home-manager-example][home-manager example]]
   - [[#configuration][Configuration]]
+- [[#known-issues][Known Issues]]
+  - [[#terminal-colors][Terminal Colors]]
 - [[#basic-configuration][Basic Configuration]]
   - [[#reload-user-config][Reload user config]]
   - [[#package-management][Package Management]]
@@ -34,6 +36,7 @@
     - [[#fonts][Fonts]]
     - [[#line--column-numbers][Line / Column Numbers]]
     - [[#improved-scrolling][Improved Scrolling]]
+    - [[#terminal-no-background-color][Terminal No Background Color]]
   - [[#theme][Theme]]
   - [[#windows][Windows]]
     - [[#move-border][move-border]]
@@ -219,6 +222,23 @@ in {
 The variables and their default values can be found in [[./etc/defaults.org]] and can be overwritten with a
 [[./etc/user.el]] file.
 
+* Known Issues
+
+** Terminal Colors
+
+If the the colors don't look right with ~emacs -nw~, use
+
+#+begin_src bash
+
+TERM=xterm-direct emacs -nw
+# or when using alacritty
+TERM=alacritty-direct emacs -nw
+
+# also works with emacsclient
+TERM=xterm-direct emacsclient -nw --create-window
+
+#+end_src
+
 * Basic Configuration
 
 ** Reload user config
@@ -318,6 +338,10 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :after evil
   :config
   (evil-collection-init))
+(use-package evil-terminal-cursor-changer
+  :unless (display-graphic-p)
+  :config
+  (evil-terminal-cursor-changer-activate))
 
 #+end_src
 
@@ -529,6 +553,18 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (setq mouse-whell-progressive-speed nil)
 (setq mouse-wheel-follow-mouse t)
 (setq scroll-step 1)
+
+#+end_src
+
+*** Terminal No Background Color
+
+#+begin_src elisp
+
+(defun hoppla/terminal-no-bg-color ()
+  (unless (display-graphic-p (selected-frame))
+    (set-face-background 'default "unspecified-bg" (selected-frame))))
+
+(add-hook 'window-setup-hook 'hoppla/terminal-no-bg-color)
 
 #+end_src
 

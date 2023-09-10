@@ -6,6 +6,7 @@
 in {
   inherit
     (pkgs)
+    git
     ccls
     tree-sitter
     libvterm
