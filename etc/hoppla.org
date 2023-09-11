@@ -38,6 +38,7 @@
     - [[#line--column-numbers][Line / Column Numbers]]
     - [[#improved-scrolling][Improved Scrolling]]
     - [[#terminal-no-background-color][Terminal No Background Color]]
+    - [[#syntax-highlighting][Syntax Highlighting]]
   - [[#theme][Theme]]
   - [[#windows][Windows]]
     - [[#move-border][move-border]]
@@ -491,13 +492,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Load env variables from shell
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
-(use-package exec-path-from-shell
-  :config
-  ;; ssh-agent
-  (exec-path-from-shell-copy-env "SSH_AGENT_PID")
-  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+;; (use-package exec-path-from-shell
+;;   :config
+;;   ;; ssh-agent
+;;   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+;;   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 
 #+end_src
 
@@ -570,6 +571,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
     (set-face-background 'default "unspecified-bg" (selected-frame))))
 
 (add-hook 'window-setup-hook 'hoppla/terminal-no-bg-color)
+
+#+end_src
+
+*** Syntax Highlighting
+
+#+begin_src elisp
+
+(setq font-lock-maximum-decoration t)
 
 #+end_src
 
@@ -1545,6 +1554,13 @@ org-meta keys
 #+begin_src elisp
 
 (use-package treesit-auto
+  :demand t
+  :init
+  (defun hoppla/ts-call-hooks ()
+    (let* ((non-ts-mode (string-remove-suffix "-ts-mode" (symbol-name major-mode)))
+          (non-ts-mode-hook (intern (concat non-ts-mode "-mode-hook"))))
+      (run-hooks non-ts-mode-hook)))
+  :hook ((python-ts-mode yaml-ts-mode c-ts-mode c++-ts-mode) . hoppla/ts-call-hooks)
   :config
   (global-treesit-auto-mode 1))
 
@@ -1591,7 +1607,7 @@ org-meta keys
 #+begin_src elisp
 
 (use-package ccls
-  :hook ((c-mode c++-mode objc-mode cuda-mode)
+  :hook ((c-mode c++-mode objc-mode cuda-mode c-ts-mode)
          . (lambda () (require 'ccls) (lsp-deferred))))
 
 #+end_src
@@ -1659,7 +1675,6 @@ org-meta keys
        (string-match hoppla/ansible-filename-re buffer-file-name)))
 
 (use-package ansible
-  :after yaml-mode
   :commands (ansible-auto-decrypt-encrypt)
   :init
   (defun hoppla/ansible-maybe-enable ()
