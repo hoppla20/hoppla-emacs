@@ -30,6 +30,7 @@
   - [[#auto-revert-reload-buffer-on-file-change][Auto Revert (Reload Buffer on file change)]]
   - [[#always-confirm-with-yn][Always confirm with y/n]]
   - [[#savehist-mode][savehist-mode]]
+  - [[#load-env-variables-from-shell][Load env variables from shell]]
 - [[#system-configuration][System Configuration]]
 - [[#ui][UI]]
   - [[#basics][Basics]]
@@ -483,6 +484,17 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+begin_src elisp
 
 (savehist-mode 1)
+
+#+end_src
+
+** Load env variables from shell
+
+#+begin_src elisp
+
+(use-package exec-path-from-shell
+  :config
+  (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 
 #+end_src
 
@@ -1565,7 +1577,7 @@ org-meta keys
   :after lsp-mode
   :hook (lsp-mode . lsp-ui-mode)
   :init
-  (setq lsp-ui-doc-position 'bottom))
+  (setq lsp-ui-doc-position 'top))
 
 #+end_src
 
