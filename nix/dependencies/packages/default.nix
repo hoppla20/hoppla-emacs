@@ -7,7 +7,8 @@ in {
   inherit
     (pkgs)
     ccls
-    tree-sitter
     libvterm
     ;
+
+  treesit-grammars = pkgs.treesit-grammars.with-all-grammars;
 }
