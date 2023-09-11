@@ -17,10 +17,10 @@ in rec {
       builtins.attrValues {
         inherit
           (epkgs)
-          use-package
           no-littering # is configured before use-package is available
           ivy # TODO somewhere there is a dependency for ivy-hydra, which requires ivy
           ;
-      };
+      }
+      ++ [epkgs.treesit-grammars.with-all-grammars];
   };
 }

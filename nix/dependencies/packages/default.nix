@@ -9,6 +9,4 @@ in {
     ccls
     libvterm
     ;
-
-  treesit-grammars = pkgs.treesit-grammars.with-all-grammars;
 }
