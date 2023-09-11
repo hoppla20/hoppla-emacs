@@ -47,6 +47,7 @@
   - [[#tabs][Tabs]]
   - [[#dashboard][Dashboard]]
   - [[#search][Search]]
+  - [[#indent-guides][Indent Guides]]
 - [[#plugins][Plugins]]
   - [[#org][Org]]
       - [[#extend-org-hydra-further-or-just-use-evil-org][extend org-hydra further or just use evil-org?]]
@@ -493,6 +494,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 (use-package exec-path-from-shell
   :config
+  ;; ssh-agent
   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 
@@ -833,6 +835,19 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
   (global-anzu-mode 1))
 (use-package evil-anzu
   :after (anzu evil))
+
+#+end_src
+
+** Indent Guides
+
+#+begin_src elisp
+
+(use-package highlight-indent-guides
+  :custom
+  (highlight-indent-guides-method 'fill "Change default method.")
+  (highlight-indent-guides-auto-odd-face-perc 20 "Change default auto face luminocity percentage.")
+  (highlight-indent-guides-auto-even-face-perc 40 "Change default auto face luminocity percentage.")
+  :hook (prog-mode . highlight-indent-guides-mode))
 
 #+end_src
 
@@ -1538,12 +1553,9 @@ org-meta keys
 
 #+begin_src elisp
 
-(use-package tree-sitter
-  :after tree-sitter-langs
-  :hook (tree-sitter-mode . tree-sitter-hl-mode)
+(use-package treesit-auto
   :config
-  (global-tree-sitter-mode 1))
-(use-package tree-sitter-langs)
+  (global-treesit-auto-mode 1))
 
 #+end_src
 
@@ -1611,7 +1623,8 @@ org-meta keys
 #+begin_src elisp
 
 (use-package nix-mode
-  :mode ("\\.nix\\'" "\\.nix.in\\'"))
+  :mode ("\\.nix\\'" "\\.nix.in\\'")
+  :hook (nix-mode . lsp-deferred))
 (use-package nix-drv-mode
   :ensure nix-mode
   :mode "\\.drv\\'")
@@ -1625,7 +1638,6 @@ org-meta keys
   :ensure lsp-mode
   :after lsp-mode
   :demand t
-  :hook (nix-mode . lsp-deferred)
   :init
   (setq lsp-nix-nil-formatter ["alejandra"])
   (setq lsp-nix-nil-ignored-diagnostics ["unused_binding"]))
@@ -1637,12 +1649,10 @@ org-meta keys
 #+begin_src elisp
 
 (use-package yaml-mode
-  :mode ("\\.yml\\'" "\\.yaml\\'"))
-(use-package lsp-yaml
-  :ensure lsp-mode
-  :after lsp-mode
-  :demand t
-  :hook (yaml-mode . lsp-deferred))
+  :ensure yaml
+  :mode ("\\.yml\\'" "\\.yaml\\'")
+  :hook ((yaml-mode . highlight-indent-guides-mode)
+         (yaml-mode . lsp-deferred)))
 
 #+end_src
 
@@ -1650,15 +1660,16 @@ org-meta keys
 
 #+begin_src elisp
 
+(setq hoppla/ansible-filename-re
+      ".*\\(main\.\\(yml\\|yaml\\)\\|site\.\\(yml\\|yaml\\)\\|encrypted\.\\(yml\\|yaml\\)\\|roles/.+\.\\(yml\\|yaml\\)\\|group_vars/.+\\|host_vars/.+\\)")
+(defun hoppla/ansible-should-enable? ()
+  (and (stringp buffer-file-name)
+       (string-match hoppla/ansible-filename-re buffer-file-name)))
+
 (use-package ansible
   :after yaml-mode
   :commands (ansible-auto-decrypt-encrypt)
   :init
-  (setq hoppla/ansible-filename-re
-        ".*\\(main\.\\(yml\\|yaml\\)\\|site\.\\(yml\\|yaml\\)\\|encrypted\.\\(yml\\|yaml\\)\\|roles/.+\.\\(yml\\|yaml\\)\\|group_vars/.+\\|host_vars/.+\\)")
-  (defun hoppla/ansible-should-enable? ()
-    (and (stringp buffer-file-name)
-         (string-match hoppla/ansible-filename-re buffer-file-name)))
   (defun hoppla/ansible-maybe-enable ()
     (when (hoppla/ansible-should-enable?)
       (ansible 1)))
@@ -1674,11 +1685,6 @@ org-meta keys
   :mode "\\.j2$"
   :config
   (setq jinja2-enable-indent-on-save nil))
-(use-package lsp-ansible
-  :ensure lsp-mode
-  :after lsp-mode
-  :demand t
-  :hook (ansible-hook . lsp-deferred))
 
 #+end_src
 
