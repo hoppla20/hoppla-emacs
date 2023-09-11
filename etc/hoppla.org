@@ -67,6 +67,7 @@
       - [[#yasnippet][yasnippet]]
     - [[#relative-buffer-names][relative-buffer-names]]
     - [[#aggressive-indent][aggressive-indent]]
+    - [[#direnv][direnv]]
   - [[#completion--search][Completion & Search]]
     - [[#native][native]]
     - [[#icons][icons]]
@@ -630,6 +631,8 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 *** zoom
 
++ [[https://github.com/cyrus-and/zoom][GitHub]]
+
 #+begin_src elisp
 
 (use-package zoom
@@ -718,6 +721,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (setq centaur-tabs-style "bar")
   (setq centaur-tabs-set-bar 'nil)
   (setq centaur-tabs-set-icons t)
+  (setq centaur-tabs-icon-type 'nerd-icons)
   (setq centaur-tabs-cycle-scope 'tabs)
   (defun centaur-tabs-buffer-groups ()
     "`centaur-tabs-buffer-groups' control buffers' group rules.
@@ -980,13 +984,13 @@ org-meta keys
   + ~z-~, ~z+~ show less/more parent folders
   + ~i~ toggle file preview window
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
-(use-package ranger
-  :init
-  (setq ranger-cleanup-eagerly t)
-  :config
-  (ranger-override-dired-mode 1))
+;; (use-package ranger
+;;   :init
+;;   (setq ranger-cleanup-eagerly t)
+;;   :config
+;;   (ranger-override-dired-mode 1))
 
 #+end_src
 
@@ -1160,6 +1164,16 @@ org-meta keys
 #+begin_src elisp
 
 (use-package aggressive-indent)
+
+#+end_src
+
+*** direnv
+
+#+begin_src elisp
+
+(use-package direnv
+  :config
+  (direnv-mode 1))
 
 #+end_src
 
@@ -1584,15 +1598,7 @@ org-meta keys
 
 #+begin_src elisp
 
-(use-package lsp-nix
-  :ensure lsp-mode
-  :after lsp-mode
-  :demand t
-  :init
-  (setq lsp-nix-nil-formatter ["alejandra"])
-  (setq lsp-nix-nil-ignored-diagnostic ["unused_binding"]))
 (use-package nix-mode
-  :hook (nix-mode . lsp-deferred)
   :mode ("\\.nix\\'" "\\.nix.in\\'"))
 (use-package nix-drv-mode
   :ensure nix-mode
@@ -1603,6 +1609,14 @@ org-meta keys
 (use-package nix-repl
   :ensure nix-mode
   :commands (nix-repl))
+(use-package lsp-nix
+  :ensure lsp-mode
+  :after lsp-mode
+  :demand t
+  :hook (nix-mode . lsp-deferred)
+  :init
+  (setq lsp-nix-nil-formatter ["alejandra"])
+  (setq lsp-nix-nil-ignored-diagnostics ["unused_binding"]))
 
 #+end_src
 
@@ -1615,7 +1629,8 @@ org-meta keys
 (use-package lsp-yaml
   :ensure lsp-mode
   :after lsp-mode
-  :demand t)
+  :demand t
+  :hook (yaml-mode . lsp-deferred))
 
 #+end_src
 
@@ -1624,11 +1639,25 @@ org-meta keys
 #+begin_src elisp
 
 (use-package ansible
-  :commands ansible-auto-decrypt-encrypt)
-  ;; :config
-  ;; (add-to-list 'company-backends 'company-ansible))
+  :after yaml-mode
+  :commands (ansible-auto-decrypt-encrypt)
+  :init
+  (setq hoppla/ansible-filename-re
+        ".*\\(main\.\\(yml\\|yaml\\)\\|site\.\\(yml\\|yaml\\)\\|encrypted\.\\(yml\\|yaml\\)\\|roles/.+\.\\(yml\\|yaml\\)\\|group_vars/.+\\|host_vars/.+\\)")
+  (defun hoppla/ansible-should-enable? ()
+    (and (stringp buffer-file-name)
+         (string-match hoppla/ansible-filename-re buffer-file-name)))
+  (defun hoppla/ansible-maybe-enable ()
+    (when (hoppla/ansible-should-enable?)
+      (ansible 1)))
+  :hook (yaml-mode . hoppla/ansible-maybe-enable))
 (use-package ansible-doc
-  :hook (yaml-mode . ansible-doc-mode))
+  :after ansible
+  :init
+  (defun hoppla/ansible-doc-maybe-enable ()
+    (when (hoppla/ansible-should-enable?)
+      (ansible-doc-mode 1)))
+  :hook (yaml-mode . hoppla/ansible-doc-maybe-enable))
 (use-package jinja2-mode
   :mode "\\.j2$"
   :config
@@ -1636,7 +1665,8 @@ org-meta keys
 (use-package lsp-ansible
   :ensure lsp-mode
   :after lsp-mode
-  :demand t)
+  :demand t
+  :hook (ansible-hook . lsp-deferred))
 
 #+end_src
 
