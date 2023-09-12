@@ -282,7 +282,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+begin_src elisp
 
-(setq gc-cons-threshold (* 100 1024 1024))
+(setq gc-cons-threshold (* 10 1024 1024))
 
 (setq file-name-handler-alist-original file-name-handler-alist)
 (setq file-name-handler-alist nil)
