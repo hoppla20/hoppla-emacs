@@ -85,6 +85,7 @@
     - [[#no-littering][no-littering]]
     - [[#org-reveal-presentations][org-reveal (presentations)]]
   - [[#development][Development]]
+    - [[#flycheck][Flycheck]]
     - [[#treesitter][Treesitter]]
     - [[#lsp][LSP]]
       - [[#lsp-ui][lsp-ui]]
@@ -1548,6 +1549,16 @@ org-meta keys
 #+end_src
 
 ** Development
+
+*** Flycheck
+
+#+begin_src elisp
+
+(use-package flycheck
+  :init
+  (global-flycheck-mode))
+
+#+end_src
 
 *** Treesitter
 
