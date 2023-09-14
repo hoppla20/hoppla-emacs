@@ -287,14 +287,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 (setq file-name-handler-alist-original file-name-handler-alist)
 (setq file-name-handler-alist nil)
 
-(use-package esup)
-;; (defun hoppla/display-startup-time ()
-;;   (message "Emacs loaded in %s with %d garbage collections."
-;;            (format "%.2f seconds"
-;;                    (float-time
-;;                     (time-subtract after-init-time before-init-time)))
-;;            gcs-done))
-;; (add-hook 'emacs-startup-hook #'hoppla/display-startup-time)
+(defun hoppla/display-startup-time ()
+  (message "Emacs loaded in %s with %d garbage collections."
+           (format "%.2f seconds"
+                   (float-time
+                    (time-subtract after-init-time before-init-time)))
+           gcs-done))
+(add-hook 'emacs-startup-hook #'hoppla/display-startup-time)
 
 #+end_src
 
