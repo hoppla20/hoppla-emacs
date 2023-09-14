@@ -103,6 +103,7 @@
   - [[#direnv][direnv]]
 - [[#runtime][Runtime]]
   - [[#performance][Performance]]
+    - [[#garbage-collection-magic-hack][Garbage Collection Magic Hack]]
 
 * Intro
 
@@ -858,8 +859,8 @@ Other buffer group by `centaur-tabs-get-group-name' with project name."
 (use-package highlight-indent-guides
   :custom
   (highlight-indent-guides-method 'fill "Change default method.")
-  (highlight-indent-guides-auto-odd-face-perc 20 "Change default auto face luminocity percentage.")
-  (highlight-indent-guides-auto-even-face-perc 40 "Change default auto face luminocity percentage.")
+  (highlight-indent-guides-auto-odd-face-perc 15 "Change default auto face luminocity percentage.")
+  (highlight-indent-guides-auto-even-face-perc 25 "Change default auto face luminocity percentage.")
   :hook (prog-mode . highlight-indent-guides-mode))
 
 #+end_src
@@ -1163,7 +1164,7 @@ org-meta keys
   (:states '(normal visual) :keymaps 'global "C-'" 'avy-goto-char-2)
   (general-nmap "gl" 'avy-goto-line)
   (general-nmap "gw" 'avy-goto-word-1)
-  (hoppla/leader-def "sa" '(avy-goto-char-2 :wk "avy timer"))
+  (hoppla/leader-def "sa" '(avy-goto-char-timer :wk "avy timer"))
   (hoppla/leader-def "sr" '(avy-resume :wk "avy resume")))
 
 #+end_src
@@ -1793,5 +1794,16 @@ org-meta keys
    (setq file-name-handler-alist file-name-handler-alist-original)
    (makunbound 'file-name-handler-alist-original)
    (message "file-name-handler-alist restored")))
+
+#+end_src
+
+*** Garbage Collection Magic Hack
+
+#+begin_src elisp
+
+(use-package gcmh
+  :demand t
+  :config
+  (gcmh-mode 1))
 
 #+end_src
