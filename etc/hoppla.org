@@ -272,6 +272,8 @@ TERM=xterm-direct emacsclient -nw --create-window
 
 #+begin_src elisp
 
+;; for startup time debugging
+;; (setq use-package-compute-statistics t)
 (eval-when-compile (require 'use-package))
 
 #+end_src
@@ -1507,8 +1509,9 @@ org-meta keys
 #+begin_src elisp
 
 (use-package pdf-tools
+  :magic ("%PDF" . pdf-view-mode)
   :config
-  (pdf-loader-install)
+  (pdf-tools-install :no-query)
   (general-nmap :keymaps 'pdf-view-mode-map
     "h" 'pdf-view-previous-page-command
     "l" 'pdf-view-next-page-command
@@ -1542,7 +1545,7 @@ org-meta keys
 
 (use-package htmlize)
 (use-package ox-reveal
-  :after htmlize
+  :after (org htmlize)
   :config
   (setq org-reveal-root "https://cdn.jsdelivr.net/npm/reveal.js"))
 
@@ -1618,6 +1621,7 @@ org-meta keys
 #+begin_src elisp
 
 (use-package ccls
+  :defer t
   :hook ((c-mode c++-mode objc-mode cuda-mode c-ts-mode)
          . (lambda () (require 'ccls) (lsp-deferred))))
 
