@@ -58,7 +58,7 @@
       - [[#misc][Misc]]
   - [[#essentials][Essentials]]
     - [[#dired][dired]]
-    - [[#ranger][ranger]]
+    - [[#ranger-disabled][ranger (disabled)]]
     - [[#magit][magit]]
     - [[#projectile][projectile]]
     - [[#perspective][perspective]]
@@ -68,15 +68,16 @@
       - [[#avy][avy]]
     - [[#snippets][Snippets]]
       - [[#yasnippet][yasnippet]]
-    - [[#relative-buffer-names][relative-buffer-names]]
+    - [[#relative-buffer-names-disabled][relative-buffer-names (disabled)]]
     - [[#aggressive-indent][aggressive-indent]]
   - [[#completion--search][Completion & Search]]
     - [[#native][native]]
     - [[#icons][icons]]
     - [[#orderless][orderless]]
-    - [[#mct][mct]]
+    - [[#mct-disabled][mct (disabled)]]
     - [[#vertico][vertico]]
     - [[#marginalia-consult][marginalia, consult]]
+    - [[#embarc][embarc]]
     - [[#cape][cape]]
     - [[#corfu][corfu]]
     - [[#ripgrep][ripgrep]]
@@ -496,13 +497,13 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Load env variables from shell
 
-#+begin_src elisp :tangle no
+#+begin_src elisp
 
-;; (use-package exec-path-from-shell
-;;   :config
-;;   ;; ssh-agent
-;;   (exec-path-from-shell-copy-env "SSH_AGENT_PID")
-;;   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
+(use-package exec-path-from-shell
+  :config
+  ;; ssh-agent
+  (exec-path-from-shell-copy-env "SSH_AGENT_PID")
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK"))
 
 #+end_src
 
@@ -1016,7 +1017,7 @@ org-meta keys
 
 #+end_src
 
-*** ranger
+*** ranger (disabled)
 
 + useful keybindings
   + ~zP~ toggle deer/ranger mode
@@ -1059,7 +1060,7 @@ org-meta keys
   :init
   (setq projectile-switch-project-action 'projectile-find-file)
   (when (file-directory-p hoppla/workspace-dir)
-    (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 2)) hoppla/extra-workspace-dirs)))
+    (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 3)) hoppla/extra-workspace-dirs)))
   :hook (after-init . (lambda () (projectile-mode 1)))
   :general
   (:states '(normal insert emacs)
@@ -1182,9 +1183,9 @@ org-meta keys
 
 #+end_src
 
-*** relative-buffer-names
+*** relative-buffer-names (disabled)
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
 (use-package buffer-name-relative
   :init
@@ -1270,7 +1271,7 @@ org-meta keys
 
 #+end_src
 
-*** mct
+*** mct (disabled)
 
 + Toggle Completions using ~C-l~
 + [[https://elpa.gnu.org/packages/mct.html#h:bb445062-2e39-4082-a868-2123bfb793cc][Selecting candidates]]
@@ -1301,7 +1302,6 @@ org-meta keys
   :init
   (vertico-mode 1)
   :config
-  (keymap-set vertico-map "?" 'minibuffer-completion-help)
   (keymap-set vertico-map "M-RET" 'minibuffer-force-complete-and-exit)
   (keymap-set vertico-map "M-TAB" 'minibuffer-complete))
 (use-package vertico-quick
@@ -1366,6 +1366,69 @@ org-meta keys
             "C-x C-j" 'consult-dir-jump-file)
   :init
   (setq consult-dir-default-command 'consult-dir-dired))
+
+#+end_src
+
+*** embarc
+
+#+begin_src elisp
+
+(use-package embark
+  :general
+  (:keymaps 'global
+            "C-." 'embark-act
+            "C-;" 'embark-dwim
+            "C-h B" 'embark-bindings)
+  (hoppla/leader-def "hB" '(embark-bindings "embark bindings"))
+  :init
+  (add-hook 'eldoc-documentation-functions 'embark-eldoc-first-target)
+  :config
+  (add-to-list 'display-buffer-alist
+               '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
+                 nil
+                 (window-parameters (mode-line-format . none))))
+
+  ;; which-key integration
+  (defun embark-which-key-indicator ()
+    "An embark indicator that displays keymaps using which-key.
+The which-key help message will show the type and value of the
+current target followed by an ellipsis if there are further
+targets."
+    (lambda (&optional keymap targets prefix)
+      (if (null keymap)
+          (which-key--hide-popup-ignore-command)
+        (which-key--show-keymap
+         (if (eq (plist-get (car targets) :type) 'embark-become)
+             "Become"
+           (format "Act on %s '%s'%s"
+                   (plist-get (car targets) :type)
+                   (embark--truncate-target (plist-get (car targets) :target))
+                   (if (cdr targets) "…" "")))
+         (if prefix
+             (pcase (lookup-key keymap prefix 'accept-default)
+               ((and (pred keymapp) km) km)
+               (_ (key-binding prefix 'accept-default)))
+           keymap)
+         nil nil t (lambda (binding)
+                     (not (string-suffix-p "-argument" (cdr binding))))))))
+
+  (setq embark-indicators
+        '(embark-which-key-indicator
+          embark-highlight-indicator
+          embark-isearch-highlight-indicator))
+
+  (defun embark-hide-which-key-indicator (fn &rest args)
+    "Hide the which-key indicator immediately when using the completing-read prompter."
+    (which-key--hide-popup-ignore-command)
+    (let ((embark-indicators
+           (remq #'embark-which-key-indicator embark-indicators)))
+      (apply fn args)))
+
+  (advice-add #'embark-completing-read-prompter
+              :around #'embark-hide-which-key-indicator))
+(use-package embark-consult
+  :after (embark consult)
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
 
 #+end_src
 
@@ -1512,20 +1575,20 @@ org-meta keys
 (use-package pdf-tools
   :magic ("%PDF" . pdf-view-mode)
   :config
-  (pdf-tools-install :no-query)
-  (general-nmap :keymaps 'pdf-view-mode-map
-    "h" 'pdf-view-previous-page-command
-    "l" 'pdf-view-next-page-command
-    "k" (lambda () (interactive) (pdf-view-previous-line-or-previous-page 5))
-    "j" (lambda () (interactive) (pdf-view-next-line-or-next-page 5))
-    "C-o" 'pdf-history-backward
-    "C-i" 'pdf-history-forward
-    "m" 'pdf-view-position-to-register
-    "'" 'pdf-view-jump-to-register
-    "/" 'pdf-occur
-    "o" 'pdf-outline
-    "f" 'pdf-links-action-perform
-    "b" 'pdf-view-midnight-minor-mode))
+  (pdf-tools-install :no-query))
+  ;; (general-nmap :keymaps 'pdf-view-mode-map
+  ;;   "h" 'pdf-view-previous-page-command
+  ;;   "l" 'pdf-view-next-page-command
+  ;;   "k" (lambda () (interactive) (pdf-view-previous-line-or-previous-page 5))
+  ;;   "j" (lambda () (interactive) (pdf-view-next-line-or-next-page 5))
+  ;;   "C-o" 'pdf-history-backward
+  ;;   "C-i" 'pdf-history-forward
+  ;;   "m" 'pdf-view-position-to-register
+  ;;   "'" 'pdf-view-jump-to-register
+  ;;   "/" 'pdf-occur
+  ;;   "o" 'pdf-outline
+  ;;   "f" 'pdf-links-action-perform
+  ;;   "b" 'pdf-view-midnight-minor-mode))
 
 #+end_src
 
