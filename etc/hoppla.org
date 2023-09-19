@@ -45,7 +45,7 @@
     - [[#zoom][zoom]]
     - [[#ace-window][ace-window]]
   - [[#modeline][Modeline]]
-  - [[#tabs][Tabs]]
+  - [[#tabs-disabled][Tabs (disabled)]]
   - [[#dashboard][Dashboard]]
   - [[#search][Search]]
 - [[#indent-guides][Indent Guides]]
@@ -736,78 +736,78 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 #+end_src
 
-** Tabs
+** Tabs (disabled)
 
 + default keybindings prefixed with ~C-c t~
 
-#+begin_src elisp
+#+begin_src elisp :tangle no
 
-(use-package centaur-tabs
-  :demand
-  :hook ((vterm-mode . centaur-tabs-local-mode))
-  :init
-  (setq centaur-tabs-enable-key-bindings t)
-  (setq centaur-tabs-style "bar")
-  (setq centaur-tabs-set-bar 'nil)
-  (setq centaur-tabs-set-icons t)
-  (setq centaur-tabs-icon-type 'nerd-icons)
-  (setq centaur-tabs-cycle-scope 'tabs)
-  (defun centaur-tabs-buffer-groups ()
-    "`centaur-tabs-buffer-groups' control buffers' group rules.
-
-Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
-All buffer name start with * will group to \"Emacs\".
-Other buffer group by `centaur-tabs-get-group-name' with project name."
-    (list
-     (cond
-      ((or (string-equal "*" (substring (buffer-name) 0 1))
-           (memq major-mode '(magit-process-mode
-                              magit-status-mode
-                              magit-diff-mode
-                              magit-log-mode
-                              magit-file-mode
-                              magit-blob-mode
-                              magit-blame-mode
-                              )))
-       "Emacs")
-      ((derived-mode-p 'prog-mode)
-       "Editing")
-      ((derived-mode-p 'dired-mode)
-       "Dired")
-      ((memq major-mode '(helpful-mode
-                          help-mode))
-       "Help")
-      ((memq major-mode '(org-mode
-                          org-agenda-clockreport-mode
-                          org-src-mode
-                          org-agenda-mode
-                          org-beamer-mode
-                          org-indent-mode
-                          org-bullets-mode
-                          org-cdlatex-mode
-                          org-agenda-log-mode
-                          diary-mode))
-       "OrgMode")
-      (t
-       (centaur-tabs-get-group-name (current-buffer))))))
-  :config
-  (centaur-tabs-mode 1)
-  (centaur-tabs-headline-match)
-  :general
-  (:states '(normal visual insert emacs)
-           "M-," 'centaur-tabs-backward
-           "M-." 'centaur-tabs-forward
-           "M-<" 'centaur-tabs-move-current-tab-to-left
-           "M->" 'centaur-tabs-move-current-tab-to-right)
-  (general-nmap "g t" 'centaur-tabs-forward)
-  (general-nmap "g T" 'centaur-tabs-backward)
-  (hoppla/leader-def "T" '(centaur-tabs-hydra/body :wk "tabs"))
-  :pretty-hydra
-  ((:title "tabs" :color amaranth :quit-key "q")
-   ("Groups"
-    (("[" centaur-tabs-backward-group "previous group")
-     ("]" centaur-tabs-forward-group "next group")
-     ("g" centaur-tabs-switch-group "switch group" :color blue)))))
+;; (use-package centaur-tabs
+;;   :demand
+;;   :hook ((vterm-mode . centaur-tabs-local-mode))
+;;   :init
+;;   (setq centaur-tabs-enable-key-bindings t)
+;;   (setq centaur-tabs-style "bar")
+;;   (setq centaur-tabs-set-bar 'nil)
+;;   (setq centaur-tabs-set-icons t)
+;;   (setq centaur-tabs-icon-type 'nerd-icons)
+;;   (setq centaur-tabs-cycle-scope 'tabs)
+;;   (defun centaur-tabs-buffer-groups ()
+;;     "`centaur-tabs-buffer-groups' control buffers' group rules.
+;; 
+;; Group centaur-tabs with mode if buffer is derived from `eshell-mode' `emacs-lisp-mode' `dired-mode' `org-mode' `magit-mode'.
+;; All buffer name start with * will group to \"Emacs\".
+;; Other buffer group by `centaur-tabs-get-group-name' with project name."
+;;     (list
+;;      (cond
+;;       ((or (string-equal "*" (substring (buffer-name) 0 1))
+;;            (memq major-mode '(magit-process-mode
+;;                               magit-status-mode
+;;                               magit-diff-mode
+;;                               magit-log-mode
+;;                               magit-file-mode
+;;                               magit-blob-mode
+;;                               magit-blame-mode
+;;                               )))
+;;        "Emacs")
+;;       ((derived-mode-p 'prog-mode)
+;;        "Editing")
+;;       ((derived-mode-p 'dired-mode)
+;;        "Dired")
+;;       ((memq major-mode '(helpful-mode
+;;                           help-mode))
+;;        "Help")
+;;       ((memq major-mode '(org-mode
+;;                           org-agenda-clockreport-mode
+;;                           org-src-mode
+;;                           org-agenda-mode
+;;                           org-beamer-mode
+;;                           org-indent-mode
+;;                           org-bullets-mode
+;;                           org-cdlatex-mode
+;;                           org-agenda-log-mode
+;;                           diary-mode))
+;;        "OrgMode")
+;;       (t
+;;        (centaur-tabs-get-group-name (current-buffer))))))
+;;   :config
+;;   (centaur-tabs-mode 1)
+;;   (centaur-tabs-headline-match)
+;;   :general
+;;   (:states '(normal visual insert emacs)
+;;            "M-," 'centaur-tabs-backward
+;;            "M-." 'centaur-tabs-forward
+;;            "M-<" 'centaur-tabs-move-current-tab-to-left
+;;            "M->" 'centaur-tabs-move-current-tab-to-right)
+;;   (general-nmap "g t" 'centaur-tabs-forward)
+;;   (general-nmap "g T" 'centaur-tabs-backward)
+;;   (hoppla/leader-def "T" '(centaur-tabs-hydra/body :wk "tabs"))
+;;   :pretty-hydra
+;;   ((:title "tabs" :color amaranth :quit-key "q")
+;;    ("Groups"
+;;     (("[" centaur-tabs-backward-group "previous group")
+;;      ("]" centaur-tabs-forward-group "next group")
+;;      ("g" centaur-tabs-switch-group "switch group" :color blue)))))
 
 #+end_src
 
