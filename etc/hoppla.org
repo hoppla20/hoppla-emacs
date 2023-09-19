@@ -1657,6 +1657,7 @@ targets."
   (setq read-process-output-max (* 1 1024 1024))
   (setq lsp-keymap-prefix "C-l")
   (setq lsp-completion-provider :none) ;; corfu
+  (setq lsp-file-watch-threshold 2000)
 
   (defun hoppla/lsp-mode-setup ()
     (lsp-enable-which-key-integration))
