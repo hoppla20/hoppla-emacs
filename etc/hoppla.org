@@ -41,6 +41,7 @@
     - [[#syntax-highlighting][Syntax Highlighting]]
   - [[#theme][Theme]]
   - [[#windows][Windows]]
+    - [[#transpose-frame][transpose-frame]]
     - [[#move-border][move-border]]
     - [[#zoom][zoom]]
     - [[#ace-window][ace-window]]
@@ -374,11 +375,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   :after evil
   :config
   (general-evil-setup)
+  (general-nmap "C-w Q" 'kill-buffer-and-window)
+
   (general-create-definer hoppla/leader-def
     :states '(normal insert emacs)
     :prefix hoppla/leader
     :global-prefix hoppla/global-leader
     :prefix-map 'hoppla/leader-prefix-map)
+
   (hoppla/leader-def "t" '(:ignore t :wk "toggles"))
   (hoppla/leader-def "b" '(:ignore t :wk "buffers"))
   (hoppla/leader-def "f" '(:ignore t :wk "files"))
@@ -393,7 +397,9 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
   (hoppla/leader-def "bi" '(ibuffer :wk "ibuffer"))
   (hoppla/leader-def "bk" '(kill-current-buffer :wk "kill current buffer"))
   (hoppla/leader-def "bo" '(hoppla/other-buffer :wk "switch to other buffer"))
-  (hoppla/leader-def "fr" '(recentf :wk "find recent file")))
+  (hoppla/leader-def "fr" '(recentf :wk "find recent file"))
+  (hoppla/leader-def "ff" '(find-file :wk "find file"))
+  (hoppla/leader-def "fo" '(find-file-other-window :wk "find file other window")))
 
 #+end_src
 
@@ -607,6 +613,14 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 
 ** Windows
 
+*** transpose-frame
+
+#+begin_src elisp
+
+(use-package transpose-frame)
+
+#+end_src
+
 *** move-border
 
 - [[https://github.com/ramnes/move-border][GitHub]]
@@ -694,7 +708,7 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
      ("X" ace-delete-window "delete (ace)")
      ("O" ace-delete-other-windows "delete other windows")
      ("S" ace-swap-window "swap")
-     ("a" ace-select-window "select"))
+     ("a" ace-window "ace window"))
     "Movement"
     (("h" evil-window-left "←")
      ("j" evil-window-down "↓")
@@ -1071,7 +1085,8 @@ org-meta keys
            "pp" '(projectile-switch-project :wk "switch project")
            "po" '(projectile-switch-open-project :wk "switch open projects")
            "pa" '(projectile-add-project :wk "add project")
-           "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")))
+           "pd" '(projectile-discover-projects-in-search-path :wk "discover projects")
+           "pr" '(projectile-recentf :wk "recent project files")))
 
 #+end_src
 
@@ -1229,10 +1244,13 @@ org-meta keys
 (setq enable-recursive-minibuffers t)
 
 ;; TAB cycle
-(setq completion-cycle-threshold nil)
+(setq completion-cycle-threshold t)
 
 ;; Enable indentation+completion using TAB
 (setq tab-always-indent 'complete)
+
+;; Hide commands which do not work in current mode
+(setq read-extended-command-predicate 'command-completion-default-include-p)
 
 #+end_src
 
@@ -1296,14 +1314,67 @@ org-meta keys
 
 *** vertico
 
+Display mode shortcuts (multiform extension):
+
+| Key | Display Mode |
+|-----+--------------|
+| M-V | vertical     |
+| M-G | grid         |
+| M-F | flat         |
+| M-R | reverse      |
+| M-U | unobtrusive  |
+
+
 #+begin_src elisp
 
 (use-package vertico
   :init
   (vertico-mode 1)
+  (setq vertico-cycle t)
+  (setq vertico-resize t)
   :config
   (keymap-set vertico-map "M-RET" 'minibuffer-force-complete-and-exit)
-  (keymap-set vertico-map "M-TAB" 'minibuffer-complete))
+  (keymap-set vertico-map "M-TAB" 'minibuffer-complete)
+
+  (defun vertico-bottom--display-candidates (lines)
+    "Display LINES in bottom."
+    (move-overlay vertico--candidates-ov (point-min) (point-min))
+    (unless (eq vertico-resize t)
+      (setq lines (nconc (make-list (max 0 (- vertico-count (length lines))) "\n") lines)))
+    (let ((string (apply #'concat lines)))
+      (add-face-text-property 0 (length string) 'default 'append string)
+      (overlay-put vertico--candidates-ov 'before-string string)
+      (overlay-put vertico--candidates-ov 'after-string nil))
+    (vertico--resize-window (length lines)))
+  (advice-add #'vertico--display-candidates :override #'vertico-bottom--display-candidates))
+(use-package vertico-directory
+  :ensure vertico
+  :after vertico
+  :config
+  :general
+  (:keymaps 'vertico-map
+            "RET" 'vertico-directory-enter
+            "DEL" 'vertico-directory-delete-char
+            "M-DEL" 'vertico-directory-delete-word)
+  :hook (rfn-eshadow-update-overlay . vertico-directory-tidy))
+(use-package vertico-mouse
+  :ensure vertico
+  :after vertico
+  :config
+  (vertico-mouse-mode 1))
+(use-package vertico-multiform
+  :ensure vertico
+  :after vertico
+  :config
+  (vertico-multiform-mode 1)
+  (setq vertico-multiform-commands
+        '((execute-extended-command grid
+           (vertico-flat-annotate . 1)
+           (vertico-grid-annotate . 1)
+           (marginalia-annotator-registry (command marginalia-annotate-binding))))))
+(use-package vertico-unobtrusive
+  :ensure vertico
+  :after vertico)
 (use-package vertico-quick
   :ensure vertico
   :after vertico
@@ -1338,7 +1409,7 @@ org-meta keys
     "bs" '(consult-buffer :wk "switch buffer")
     "bO" '(consult-buffer-other-window :wk "open buffer in other window")
     "fr" '(consult-recent-file :wk "find recent file")
-    "ff" '(consult-find :wk "find file")
+    "fc" '(consult-find :wk "find file")
     "fd" '(consult-fd :wk "find directory")
     "sr" '(consult-ripgrep :wk "ripgrep"))
   (general-nmap "C-p" '(consult-find :wk "find file"))
@@ -1375,7 +1446,7 @@ org-meta keys
 
 (use-package embark
   :general
-  (:states '(normal visual insert emacs) :keymaps 'global
+  (:keymaps 'global
             "C-." 'embark-act
             "C-;" 'embark-dwim
             "C-h B" 'embark-bindings)
@@ -1426,6 +1497,16 @@ targets."
 
   (advice-add #'embark-completing-read-prompter
               :around #'embark-hide-which-key-indicator))
+
+  (defun embark-live-vertico ()
+    "Shrink Vertico minibuffer when `embark-live' is active."
+    (when-let (win (and (string-prefix-p "*Embark Live" (buffer-name))
+                        (active-minibuffer-window)))
+      (with-selected-window win
+        (when (and (bound-and-true-p vertico--input)
+                   (fboundp 'vertico-multiform-unobtrusive))
+          (vertico-multiform-unobtrusive)))))
+  (add-hook 'embark-collect-mode-hook 'embark-live-vertico)
 (use-package embark-consult
   :after (embark consult)
   :hook (embark-collect-mode . consult-preview-at-point-mode))
@@ -1657,6 +1738,8 @@ targets."
   (setq read-process-output-max (* 1 1024 1024))
   (setq lsp-keymap-prefix "C-l")
   (setq lsp-completion-provider :none) ;; corfu
+  (setq lsp-file-watch-threshold 2000)
+  (add-to-list lsp-file-watch-ignored-files "[/\\\\]\\result") ;; nix build outputs
 
   (defun hoppla/lsp-mode-setup ()
     (lsp-enable-which-key-integration))
