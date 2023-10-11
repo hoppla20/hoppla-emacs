@@ -1451,8 +1451,6 @@ Display mode shortcuts (multiform extension):
             "C-;" 'embark-dwim
             "C-h B" 'embark-bindings)
   (hoppla/leader-def "hB" '(embark-bindings "embark bindings"))
-  :init
-  (add-hook 'eldoc-documentation-functions 'embark-eldoc-first-target)
   :config
   (add-to-list 'display-buffer-alist
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
