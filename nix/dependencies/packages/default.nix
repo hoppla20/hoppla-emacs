@@ -8,5 +8,6 @@ in {
     (pkgs)
     ccls
     libvterm
+    imagemagick
     ;
 }
