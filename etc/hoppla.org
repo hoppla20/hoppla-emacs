@@ -97,6 +97,7 @@
       - [[#yaml][Yaml]]
       - [[#ansible][Ansible]]
       - [[#markdown][Markdown]]
+      - [[#jenkinsfile][Jenkinsfile]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1792,6 +1793,15 @@ targets."
                                  navigation
                                  insert
                                  additional)))
+
+#+end_src
+
+**** Jenkinsfile
+
+#+begin_src elisp
+
+(use-package groovy-mode)
+(use-package jenkinsfile-mode)
 
 #+end_src
 
