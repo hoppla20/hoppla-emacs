@@ -99,6 +99,7 @@
       - [[#ansible][Ansible]]
       - [[#markdown][Markdown]]
       - [[#jenkinsfile][Jenkinsfile]]
+      - [[#powershell][Powershell]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1881,6 +1882,14 @@ targets."
 
 (use-package groovy-mode)
 (use-package jenkinsfile-mode)
+
+#+end_src
+
+**** Powershell
+
+#+begin_src elisp
+
+(use-package powershell)
 
 #+end_src
 
