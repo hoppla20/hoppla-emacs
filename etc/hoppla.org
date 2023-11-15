@@ -1738,7 +1738,6 @@ targets."
   (setq lsp-keymap-prefix "C-l")
   (setq lsp-completion-provider :none) ;; corfu
   (setq lsp-file-watch-threshold 2000)
-  (add-to-list lsp-file-watch-ignored-files "[/\\\\]\\result") ;; nix build outputs
 
   (defun hoppla/lsp-mode-setup ()
     (lsp-enable-which-key-integration))
