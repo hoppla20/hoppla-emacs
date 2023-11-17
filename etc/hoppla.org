@@ -90,6 +90,7 @@
     - [[#flycheck][Flycheck]]
     - [[#treesitter][Treesitter]]
     - [[#lsp][LSP]]
+      - [[#lsp-pyright][lsp-pyright]]
       - [[#lsp-ui][lsp-ui]]
     - [[#languages][Languages]]
       - [[#c--c][C / C++]]
@@ -1745,6 +1746,17 @@ targets."
   (defun hoppla/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(orderless-fast))))
+
+#+end_src
+
+**** lsp-pyright
+
+#+begin_src elisp
+
+(use-package lsp-pyright
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred))))
 
 #+end_src
 
