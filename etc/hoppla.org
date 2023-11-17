@@ -1076,7 +1076,7 @@ org-meta keys
   :init
   (setq projectile-switch-project-action 'projectile-find-file)
   (when (file-directory-p hoppla/workspace-dir)
-    (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 3)) hoppla/extra-workspace-dirs)))
+    (setq projectile-project-search-path (append `((,hoppla/workspace-dir . 4)) hoppla/extra-workspace-dirs)))
   :hook (after-init . (lambda () (projectile-mode 1)))
   :general
   (:states '(normal insert emacs)
