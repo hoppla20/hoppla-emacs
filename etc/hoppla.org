@@ -51,6 +51,7 @@
   - [[#search][Search]]
 - [[#indent-guides][Indent Guides]]
 - [[#plugins][Plugins]]
+  - [[#editorconfig][Editorconfig]]
   - [[#org][Org]]
       - [[#extend-org-hydra-further-or-just-use-evil-org][extend org-hydra further or just use evil-org?]]
     - [[#appearance][Appearance]]
@@ -884,6 +885,16 @@ https://www.reddit.com/r/emacs/comments/3kqt6e/2_easy_little_known_steps_to_spee
 #+end_src
 
 * Plugins
+
+** Editorconfig
+
+#+begin_src elisp
+
+(use-package editorconfig
+  :config
+  (editorconfig-mode 1))
+
+#+end_src
 
 ** Org
 
