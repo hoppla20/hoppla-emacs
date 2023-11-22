@@ -1297,7 +1297,7 @@ org-meta keys
     (orderless-style-dispatchers '(orderless-fast-dispatch))
     (orderless-matching-styles '(orderless-literal orderless-regexp)))
 
-  (setq completion-styles '(orderless-fast basic))
+  (setq completion-styles '(substring orderless-fast basic))
   (setq completion-category-defaults nil)
   (setq completion-category-overrides '((file (styles basic partial-completion)))))
 
@@ -1347,9 +1347,6 @@ Display mode shortcuts (multiform extension):
   (setq vertico-cycle t)
   (setq vertico-resize t)
   :config
-  (keymap-set vertico-map "M-RET" 'minibuffer-force-complete-and-exit)
-  (keymap-set vertico-map "M-TAB" 'minibuffer-complete)
-
   (defun vertico-bottom--display-candidates (lines)
     "Display LINES in bottom."
     (move-overlay vertico--candidates-ov (point-min) (point-min))
