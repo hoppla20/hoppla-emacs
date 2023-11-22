@@ -101,6 +101,7 @@
       - [[#markdown][Markdown]]
       - [[#jenkinsfile][Jenkinsfile]]
       - [[#powershell][Powershell]]
+      - [[#hcl][HCL]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1907,6 +1908,16 @@ targets."
 #+begin_src elisp
 
 (use-package powershell)
+
+#+end_src
+
+**** HCL
+
+#+begin_src elisp
+
+(use-package hcl-mode
+  :init
+  (setq hcl-indent-level 2))
 
 #+end_src
 
