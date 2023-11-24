@@ -104,6 +104,7 @@
       - [[#hcl][HCL]]
       - [[#terraform][Terraform]]
       - [[#dhall][Dhall]]
+      - [[#docker][Docker]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1937,6 +1938,18 @@ targets."
 
 (use-package dhall-mode
   :mode "\\.dhall\\'")
+
+#+end_src
+
+**** Docker
+
+#+begin_src elisp
+
+(use-package dockerfile-mode
+  :init
+  (setq dockerfile-mode-command "podman")
+  :config
+  (put 'dockerfile-image-name 'safe-local-variable #'stringp))
 
 #+end_src
 
