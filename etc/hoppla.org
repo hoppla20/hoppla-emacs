@@ -103,6 +103,7 @@
       - [[#powershell][Powershell]]
       - [[#hcl][HCL]]
       - [[#terraform][Terraform]]
+      - [[#dhall][Dhall]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1532,7 +1533,6 @@ targets."
   (add-to-list 'completion-at-point-functions 'cape-dabbrev)
   (add-to-list 'completion-at-point-functions 'cape-file)
   (add-to-list 'completion-at-point-functions 'cape-elisp-block)
-  (add-to-list 'completion-at-point-functions 'cape-tex)
   (add-to-list 'completion-at-point-functions 'cape-dict))
 
 #+end_src
@@ -1928,6 +1928,15 @@ targets."
   :init
   (setq terraform-indent-level 2)
   (setq terraform-format-on-save t))
+
+#+end_src
+
+**** Dhall
+
+#+begin_src elisp
+
+(use-package dhall-mode
+  :mode "\\.dhall\\'")
 
 #+end_src
 
