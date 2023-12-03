@@ -105,6 +105,7 @@
       - [[#terraform][Terraform]]
       - [[#dhall][Dhall]]
       - [[#docker][Docker]]
+      - [[#go][Go]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1950,6 +1951,15 @@ targets."
   (setq dockerfile-mode-command "podman")
   :config
   (put 'dockerfile-image-name 'safe-local-variable #'stringp))
+
+#+end_src
+
+**** Go
+
+#+begin_src elisp
+
+(use-package go-mode
+  :hook (go-mode . lsp-deferred))
 
 #+end_src
 
