@@ -932,7 +932,7 @@ org-meta keys
 
 (use-package org-mode
   :ensure org
-  :mode ("\\.org\\" . org-mode)
+  :mode ("\\.org\\'" . org-mode)
   :init
   (setq org-startup-indented t)
   (setq org-confirm-babel-evaluate nil)
@@ -1868,7 +1868,7 @@ targets."
       (ansible-doc-mode 1)))
   :hook (yaml-mode . hoppla/ansible-doc-maybe-enable))
 (use-package jinja2-mode
-  :mode "\\.j2\\"
+  :mode "\\.j2\\'"
   :config
   (setq jinja2-enable-indent-on-save nil))
 
@@ -1959,8 +1959,10 @@ targets."
 #+begin_src elisp
 
 (use-package go-mode
-  :mode ("\\.go\\" . go-mode)
-  :hook (go-mode . lsp-deferred))
+  :mode ("\\.go\\'" . go-mode)
+  :hook (go-mode . lsp-deferred)
+  :init
+  (setq go-ts-mode-indent-offset 2))
 
 #+end_src
 
