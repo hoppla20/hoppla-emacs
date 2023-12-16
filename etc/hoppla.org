@@ -106,6 +106,7 @@
       - [[#dhall][Dhall]]
       - [[#docker][Docker]]
       - [[#go][Go]]
+      - [[#rust][Rust]]
     - [[#misc-2][Misc]]
       - [[#comments][Comments]]
       - [[#rainbow-delimiters][Rainbow Delimiters]]
@@ -1963,6 +1964,18 @@ targets."
   :hook (go-mode . lsp-deferred)
   :init
   (setq go-ts-mode-indent-offset 2))
+
+#+end_src
+
+**** Rust
+
+#+begin_src elisp
+
+(use-package rust-mode
+  :init
+  (setq rust-format-on-save t)
+  :hook
+  (rust-mode . (prettify-symbols-mode lsp)))
 
 #+end_src
 
