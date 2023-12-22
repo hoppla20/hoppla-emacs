@@ -6,7 +6,7 @@
 in rec {
   default = hoppla-emacs;
   hoppla-emacs = pkgs.emacsWithPackagesFromUsePackage {
-    package = pkgs.emacs-pgtk;
+    package = pkgs.emacs-unstable-pgtk;
 
     config = "${inputs.self}/etc/hoppla.org";
     defaultInitFile = false;

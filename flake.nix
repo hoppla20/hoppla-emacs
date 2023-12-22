@@ -2,13 +2,12 @@
   description = "Hoppla Emacs";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    emacs-overlay.url = "github:hoppla20/emacs-overlay/patch-1";
+    nixpkgs.follows = "emacs-overlay/nixpkgs";
     std = {
       url = "github:divnix/std";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    emacs-overlay.url = "github:hoppla20/emacs-overlay/patch-1";
   };
 
   outputs = {
