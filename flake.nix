@@ -8,10 +8,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    emacs-overlay = {
-      url = "github:hoppla20/emacs-overlay/patch-1";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    emacs-overlay.url = "github:hoppla20/emacs-overlay/patch-1";
   };
 
   outputs = {
